@@ -1,4 +1,4 @@
-# Akuna Capital Options 101 — Personal Notes
+# Akuna Capital Options 101 Notes
 
 Personal textbook-style notes covering introductory options market making concepts, based on Akuna Capital's Options 101 program.
 

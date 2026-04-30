@@ -1,6 +1,8 @@
 # Akuna Capital Options 101: Notes (Split by Chapter)
 
-This folder contains my textbook-style notes based on introductory options market making concepts, plus a **chapter-split** version of the compiled PDF. Link to Complete PDF: https://drive.google.com/file/d/1kk4VDinYDHIUoRZm5yMgoM_Rij1aO_Sr/view?usp=sharing
+This folder contains my textbook-style notes based on introductory options market making concepts, plus a **chapter-split** version of the compiled PDF. 
+
+Link to Complete PDF: https://drive.google.com/file/d/1kk4VDinYDHIUoRZm5yMgoM_Rij1aO_Sr/view?usp=sharing
 
 ## What’s in here
 

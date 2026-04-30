@@ -3,6 +3,7 @@
 [![LaTeX](https://img.shields.io/badge/LaTeX-source-008080)](#rebuild-the-full-pdf-from-latex)
 [![PDF](https://img.shields.io/badge/PDF-compiled-blue)](Akuna_Capital_Options_101.pdf)
 [![Chapters](https://img.shields.io/badge/PDF-chapters-purple)](chapters_pdf/)
+[![Akuna Options 101](https://img.shields.io/badge/source-Akuna%20Options%20101-black)](https://akunacapital.com/work-with-us/options-101/)
 [![Last updated](https://img.shields.io/badge/last%20updated-2026--04--30-lightgrey)](#)
 
 This folder contains my textbook-style notes based on introductory options market making concepts, plus a **chapter-split** version of the compiled PDF. 

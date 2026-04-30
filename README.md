@@ -1,5 +1,10 @@
 # Akuna Capital Options 101: Notes (Split by Chapter)
 
+[![LaTeX](https://img.shields.io/badge/LaTeX-source-008080)](#rebuild-the-full-pdf-from-latex)
+[![PDF](https://img.shields.io/badge/PDF-compiled-blue)](Akuna_Capital_Options_101.pdf)
+[![Chapters](https://img.shields.io/badge/PDF-chapters-purple)](chapters_pdf/)
+[![Last updated](https://img.shields.io/badge/last%20updated-2026--04--30-lightgrey)](#)
+
 This folder contains my textbook-style notes based on introductory options market making concepts, plus a **chapter-split** version of the compiled PDF. 
 
 Link to Complete PDF: https://drive.google.com/file/d/1kk4VDinYDHIUoRZm5yMgoM_Rij1aO_Sr/view?usp=sharing

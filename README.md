@@ -129,7 +129,3 @@ print("Wrote outputs to", out_dir)
 PY
 ```
 
-## License / Usage
-
-These are personal notes. If you plan to share or redistribute them, consider adding an explicit license file (e.g., Creative Commons) and ensure any embedded figures are permitted for redistribution.
-

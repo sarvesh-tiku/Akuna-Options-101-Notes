@@ -1,0 +1,3626 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage{caption}
+
+\setstretch{1.1}
+\raggedbottom
+\setlength{\headheight}{14pt}
+
+% tighter figure spacing to reduce whitespace
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{2pt}
+
+\captionsetup{
+    font=small,
+    labelfont=bf,
+    skip=5pt
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Akuna Capital Options 101}
+\lhead{Sarvesh Tiku}
+\rfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{0.75em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.75em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.75em}{}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{remark}{Remark}[section]
+
+% Figure helpers
+\newcommand{\imgfigure}[3]{
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=0.82\textwidth,
+        height=#2\textheight,
+        keepaspectratio
+    ]{#1}
+    \caption{#3}
+\end{figure}
+}
+
+\newcommand{\trimimgfigure}[4]{
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=0.82\textwidth,
+        height=#2\textheight,
+        keepaspectratio,
+        trim=#4,
+        clip
+    ]{#1}
+    \caption{#3}
+\end{figure}
+}
+
+\begin{document}
+
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge \textbf{Akuna Capital Options 101 Notes}}\\[0.5cm]
+    {\large Sarvesh Tiku}\\[0.3cm]
+    {\large Spring 2026}\\[2cm]
+
+    \vfill
+    {\large Personal textbook-style notes based on introductory options market making concepts.}
+\end{titlepage}
+
+\clearpage
+\thispagestyle{empty}
+
+\vspace*{\fill}
+\begin{center}
+    {\Large \textit{Dedicated to the women who keep me motivated.}}\\[1cm]
+    {\large Thank you, Mamma, Shiny, and Gauri.}
+\end{center}
+\vspace*{\fill}
+
+\clearpage
+
+\tableofcontents
+\newpage
+
+\section{Overview}
+
+These notes introduce the core terminology used in options market making and trading. The goal of this chapter is to build a precise vocabulary before moving on to pricing, order flow, and trading strategy.
+
+Much of trading language is compact and desk-oriented. A phrase such as ``60 bid for 4, offered at 65'' carries information about price, direction, and size all at once. These notes formalize that language in a clean and structured way.
+
+\section{Basic Market Terminology}
+
+\subsection{Bid and Offer}
+
+\begin{definition}[Bid]
+The \textbf{bid} is the highest price a buyer is willing to pay for an asset or contract.
+\end{definition}
+
+\begin{definition}[Offer / Ask]
+The \textbf{offer} (or \textbf{ask}) is the lowest price at which a seller is willing to sell an asset or contract.
+\end{definition}
+
+\begin{example}[Temperature Contract Analogy]
+Suppose the expected temperature tomorrow is $64^\circ\mathrm{F}$.
+
+If a trader says they are \textbf{60 bid}, this means they are willing to buy at a value of 60.
+
+If a trader says they are \textbf{65 offered}, this means they are willing to sell at a value of 65.
+\end{example}
+
+\begin{remark}
+The bid is the market's displayed buying interest, while the offer is the displayed selling interest. Together, they define the current quoted market.
+\end{remark}
+
+\subsection{Size}
+
+\begin{definition}[Size]
+The \textbf{size} of a quote is the number of contracts a trader is willing to buy or sell at a given price.
+\end{definition}
+
+\begin{example}
+If a trader says ``100 bid for 24,'' this means the trader is willing to buy 24 contracts at a price of 100.
+\end{example}
+
+\subsection{Making a Market}
+
+\begin{definition}[Make a Market]
+To \textbf{make a market} means to quote both a bid and an offer, together with the size available at each side.
+\end{definition}
+
+\begin{example}
+Consider the quote:
+\[
+\text{60 bid for 4, offered at 65.}
+\]
+This means a trader is willing to buy at 60 and sell at 65.
+\end{example}
+
+\imgfigure{image1.png}{0.42}{A market is tradable when the quoted prices allow execution. In Market A, the trade occurs. In Market B, the trade is canceled.}
+
+\begin{remark}
+This example shows that making a market is not just about quoting two numbers. The relationship between the bid and the offer determines whether a trade can actually happen.
+\end{remark}
+
+\subsection{Spread}
+
+\begin{definition}[Spread]
+The \textbf{spread} is the difference between the offer price and the bid price.
+\end{definition}
+
+\begin{example}
+If the market is
+\[
+60 \text{ bid at } 65,
+\]
+then the spread is
+\[
+65 - 60 = 5.
+\]
+Thus, the market is said to be \textbf{5 wide}.
+\end{example}
+
+\begin{remark}
+A tighter spread usually indicates a more competitive or liquid market, while a wider spread reflects more uncertainty, less liquidity, or greater risk.
+\end{remark}
+
+\section{Risk and Trading Participants}
+
+\subsection{Hedging}
+
+\begin{definition}[Hedge]
+A \textbf{hedge} is a trade or investment made to reduce the risk of another position.
+\end{definition}
+
+\begin{example}
+Suppose a trader has a \$100 bet that the Chicago Bulls will win tonight. To reduce exposure, they may take another position such as:
+\begin{itemize}[leftmargin=2em]
+    \item Bulls score fewer than 120 points, or
+    \item Bulls shoot under 30\% from three-point range.
+\end{itemize}
+This second position helps offset some of the risk of the original bet.
+\end{example}
+
+\subsection{Paper}
+
+\begin{definition}[Paper]
+\textbf{Paper} is a trading-floor term used to describe the outside interest trading against market makers.
+\end{definition}
+
+Historically, customer orders were written down on paper by brokers and physically brought into the trading pit. Even today, traders may still use ``paper'' as a generic term for the participants or order flow on the other side of a trade.
+
+\subsection{Broker}
+
+\begin{definition}[Broker]
+A \textbf{broker} is a person or firm that acts as an intermediary between buyers and sellers.
+\end{definition}
+
+\begin{remark}
+The broker does not usually take the directional market risk themselves. Instead, they facilitate trade execution between parties.
+\end{remark}
+
+\section{Market Microstructure Concepts}
+
+\subsection{Tick Size}
+
+\begin{definition}[Tick Size]
+The \textbf{tick size} is the smallest allowed increment between one price and the next higher or lower price.
+\end{definition}
+
+\begin{example}
+If a stock is trading at 100.00 and the next possible higher price is 100.01, then the tick size is
+\[
+0.01.
+\]
+\end{example}
+
+\subsection{Queue Priority}
+
+\begin{definition}[Queue Priority]
+\textbf{Queue priority} is the rule that determines which resting order has precedence for execution when multiple orders exist in the market.
+\end{definition}
+
+A common rule is \textbf{price-time priority}:
+\begin{enumerate}[leftmargin=2em]
+    \item Better price gets priority first.
+    \item If two orders are at the same price, the earlier order gets priority.
+\end{enumerate}
+
+\imgfigure{image2.png}{0.42}{Illustration of price-time priority. Orders are ranked first by price and then by arrival time within the same price level.}
+
+\begin{example}
+Suppose the following bids are resting in the book:
+\begin{itemize}[leftmargin=2em]
+    \item 81.00 at 9:03:02 for 3 contracts
+    \item 81.00 at 9:03:15 for 4 contracts
+    \item 80.00 at 9:02:01 for 4 contracts
+    \item 80.00 at 9:02:04 for 5 contracts
+\end{itemize}
+Then the two bids at 81.00 have priority over all bids at 80.00 because price comes first. Between the two 81.00 bids, the one entered at 9:03:02 has priority because it arrived earlier.
+\end{example}
+
+\begin{remark}
+Price takes precedence over time, and time takes precedence over size. A larger order entered later does not jump ahead of an earlier order at the same price.
+\end{remark}
+
+\section{Order Types}
+
+\subsection{Immediate-or-Cancel (IOC)}
+
+\begin{definition}[Immediate-or-Cancel Order]
+An \textbf{IOC order} must be executed immediately in whole or in part. Any unfilled quantity is canceled.
+\end{definition}
+
+\begin{example}
+Suppose the market shows
+\[
+100 \text{ bid for } 24.
+\]
+Now assume a trader submits an IOC order to sell 50 contracts at 100.
+
+Then:
+\begin{itemize}[leftmargin=2em]
+    \item 24 contracts are sold immediately at 100,
+    \item the remaining 26 contracts are canceled.
+\end{itemize}
+\end{example}
+
+\subsection{Good-for-Day (GFD)}
+
+\begin{definition}[Good-for-Day Order]
+A \textbf{Good-for-Day} order remains active until it is executed, partially executed, or the trading day ends. Any remaining quantity is canceled at the end of the day.
+\end{definition}
+
+\subsection{Good-'Til-Canceled (GTC)}
+
+\begin{definition}[Good-'Til-Canceled Order]
+A \textbf{GTC order} remains active until it is either fully executed or explicitly canceled.
+\end{definition}
+
+\subsection{All-or-None (AON)}
+
+\begin{definition}[All-or-None Order]
+An \textbf{AON order} must be executed in its entirety or not at all.
+\end{definition}
+
+\begin{example}
+If a trader wants to buy 1000 options but does not want a tiny partial fill, they may submit an AON order so that the trade only executes if the entire amount is available.
+\end{example}
+
+\subsection{Fill-or-Kill (FOK)}
+
+\begin{definition}[Fill-or-Kill Order]
+A \textbf{FOK order} must be executed immediately and completely. Otherwise, it is canceled.
+\end{definition}
+
+\begin{remark}
+This is stricter than an IOC order.
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{IOC:} partial fill allowed, rest canceled.
+    \item \textbf{FOK:} no partial fill allowed; either all immediately or none.
+\end{itemize}
+\end{remark}
+
+\subsection{One-Cancels-the-Other (OCO)}
+
+\begin{definition}[One-Cancels-the-Other Order]
+An \textbf{OCO order} consists of two linked orders such that if one is executed, the other is automatically canceled.
+\end{definition}
+
+\begin{remark}
+OCO orders are useful for controlling exposure. They prevent a trader from accidentally being filled on multiple related orders at once and taking on more directional risk than intended.
+\end{remark}
+
+\section{Market Participants}
+
+\subsection{Trader}
+
+\begin{definition}[Trader]
+A \textbf{trader} is any active market participant buying or selling financial products. Traders may work for market making firms such as Akuna, or for hedge funds, banks, and other institutions.
+\end{definition}
+
+\begin{remark}
+The term is broad. It refers to anyone actively participating in the market, regardless of whether they are making markets, taking directional views, or hedging risk.
+\end{remark}
+
+\subsection{Market Maker}
+
+\begin{definition}[Market Maker]
+A \textbf{market maker} is a trader willing to buy or sell an asset at quoted prices on an ongoing basis.
+\end{definition}
+
+\begin{remark}
+Market makers continuously quote two-sided markets. Their core job is to collect edge while managing the risk created by buying and selling related securities.
+\end{remark}
+
+\subsection{Local}
+
+\begin{definition}[Local]
+A \textbf{local} is a general term for a market maker, especially in the context of pit trading.
+\end{definition}
+
+\begin{remark}
+The term comes from the floor-trading era, when independent traders stood in the pit every day and traded locally in that market.
+\end{remark}
+
+\subsection{Broker}
+
+\begin{definition}[Broker]
+A \textbf{broker} is a person or firm that acts as an intermediary between buyers and sellers.
+\end{definition}
+
+\begin{remark}
+On a trading floor, brokers relay orders between the crowd in the pit and interested parties outside the pit.
+\end{remark}
+
+\subsection{Paper}
+
+\begin{definition}[Paper]
+\textbf{Paper} is the general term used by market makers for the outside interest trading against them.
+\end{definition}
+
+\begin{remark}
+The term comes from the pit-trading era, when customer orders were physically brought in on paper tickets.
+\end{remark}
+
+\subsection{Institutional Participants}
+
+\begin{definition}[Hedge Funds, Banks, and Institutions]
+\textbf{Hedge funds, banks, and other institutions} are large financial participants that trade for directional views, portfolio adjustments, hedging, or client-related strategies.
+\end{definition}
+
+\begin{remark}
+These participants are often the largest source of outside order flow and are therefore among the most important categories of paper.
+\end{remark}
+
+\subsection{Retail Client}
+
+\begin{definition}[Retail Client]
+A \textbf{retail client} is a smaller outside customer, such as an individual trading from a personal brokerage account.
+\end{definition}
+
+\begin{remark}
+Retail flow is usually smaller and less sophisticated than institutional flow, but it is still an important part of the broader market ecosystem.
+\end{remark}
+
+\section{Options-Specific Terms}
+
+\subsection{Fill}
+
+\begin{definition}[Fill]
+A \textbf{fill} is the completion of a trade.
+\end{definition}
+
+\begin{remark}
+If a market maker trades on their bid or offer, they may say that they \emph{got filled}.
+\end{remark}
+
+\subsection{Settlement Time}
+
+\begin{definition}[Settlement Time]
+\textbf{Settlement time} is the time of day at which options expire or futures settle for mark-to-market and profit-and-loss calculations.
+\end{definition}
+
+\subsection{Contract Size}
+
+\begin{definition}[Contract Size]
+\textbf{Contract size} is the multiplier attached to an option or future.
+\end{definition}
+
+\begin{example}
+Stock options often have a multiplier of 100 shares, while options on futures are typically tied to one futures contract. The exact multiplier depends on the product.
+\end{example}
+
+\subsection{Theoretical Value}
+
+\begin{definition}[Theoretical Value (Theo)]
+The \textbf{theoretical value}, often called \textbf{theo}, is the value a market maker believes an option is worth based on the current model inputs.
+\end{definition}
+
+\begin{remark}
+When traders refer to \emph{sheets} or \emph{fair value}, they are often referring to the same core idea: where the product should trade according to the desk's valuation.
+\end{remark}
+
+\subsection{Liquidity}
+
+\begin{definition}[Liquidity]
+\textbf{Liquidity} describes how easy or difficult it is to trade near fair value.
+\end{definition}
+
+\begin{remark}
+Liquidity is often influenced by both the width of the market and the amount of size available on the bid and offer.
+\end{remark}
+
+\subsection{Volatility Trading Language}
+
+\begin{definition}[Vol Bid / Vol Offered]
+If traders say \textbf{vol bid}, \textbf{catching a bid}, or \textbf{ripping/exploding}, they mean implied volatility is moving up. If they say \textbf{vol offered} or \textbf{vol smashed/smoked}, they mean implied volatility is moving down.
+\end{definition}
+
+\subsection{Teenie}
+
+\begin{definition}[Teenie]
+A \textbf{teenie} refers to a very low-priced option, often one that is traded primarily for movement risk or asymmetric payoff reasons.
+\end{definition}
+
+\section{How the Trading Floor Operates}
+
+\subsection{Trading Pits and Product Locations}
+
+\begin{definition}[Trading Pit]
+A \textbf{trading pit} is the designated physical area where traders gather to trade a particular product.
+\end{definition}
+
+\begin{remark}
+Historically, pits were literally tiered areas where everyone trading the same product stood together. If someone needed to trade a given option or future, they knew exactly where to go.
+\end{remark}
+
+\trimimgfigure{image3.png}{0.48}{Off-floor participants communicate with brokers, who relay orders into the crowd. The pit concentrates liquidity and information in one place.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Who Stands on the Floor}
+
+Market makers, brokers, and other active floor traders stand in or around the pit. Modern market making firms often connect their floor traders to screen traders electronically, so that both sides of the firm are seeing the same values and market information in real time.
+
+\begin{remark}
+Even though pit trading looks chaotic from the outside, it is structured. Participants know where each product trades, who the major brokers are, and how information moves between the crowd and outside customers.
+\end{remark}
+
+\subsection{How an Order Reaches the Floor}
+
+\begin{example}[Requesting a Market]
+Suppose an off-floor customer wants to sell May 20 calls. Instead of immediately revealing that they are a seller, they may first ask a broker,
+\[
+\text{``How are the May 20 calls?''}
+\]
+This means they want the crowd to make a two-sided market.
+\end{example}
+
+The broker then turns to the crowd and asks for a market. The market makers respond with their bids and offers, and the broker relays the best bid and best offer back to the off-floor customer.
+
+\begin{remark}
+This matters because the customer has not yet revealed direction. By first asking for a market, they can receive a fair two-sided quote before disclosing whether they want to buy or sell.
+\end{remark}
+
+\subsection{How a Trade Happens}
+
+\begin{example}[Selling Into the Bid]
+Suppose the broker relays back the market
+\[
+1.00 \text{ at } 1.20, \quad 100 \text{ by } 50.
+\]
+This means the best bid is 1.00 for 100 contracts and the best offer is 1.20 for 50 contracts.
+
+If the customer now says
+\[
+\text{``Sell 100 at 1.00,''}
+\]
+then the order trades against the participants bidding 1.00.
+\end{example}
+
+\trimimgfigure{image4.png}{0.48}{Example of an off-floor seller requesting a market and then selling into the best bid quoted by the crowd.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+The broker is central here. The broker collects quotes from the crowd, communicates with the off-floor participant, and announces the resulting trade back into the market.
+\end{remark}
+
+\subsection{Trade Checking and Recording}
+
+After the trade occurs, the involved parties write up the trade details, including price and quantity. The broker also records the trade on behalf of the off-floor customer.
+
+\begin{remark}
+This record-keeping step is necessary because floor trading is fast and verbal. The parties may already be focused on the next trade, so the written tickets are what allow the trade to be checked and confirmed afterward.
+\end{remark}
+
+These tickets are then matched by the firms and checked against one another. Once all sides agree on the details, the trades are sent to the clearinghouse for official processing and record-keeping.
+
+\subsection{Floor Trading Versus Electronic Trading}
+
+\begin{remark}
+On an electronic exchange, the same process is more automated. Quotes are displayed centrally, orders are entered directly into the exchange, fills are allocated electronically, and clearing systems receive the trade data almost immediately.
+\end{remark}
+
+\begin{remark}
+Floor trading relies more heavily on human communication and manual confirmation, while electronic trading reduces human error and speeds up execution and reporting. Even so, floor information can still matter, which is why some firms stay active in both venues.
+\end{remark}
+
+\section{Forwards, Futures, and Options on Futures}
+
+\subsection{Why Forward Contracts Exist}
+
+\begin{definition}[Forward Contract]
+A \textbf{forward contract} is an agreement between two parties to transact an asset at a specified future date for a specified price.
+\end{definition}
+
+\begin{remark}
+A forward contract is designed to reduce uncertainty. Instead of waiting for the market price at harvest or delivery time, both sides agree in advance on the price at which they will trade.
+\end{remark}
+
+\begin{example}[Apple Farmer and Pie Chain]
+Suppose an apple farmer expects to produce 1 million pounds of apples this year. The farmer faces price risk: if apple prices fall too much by harvest time, the farmer may not even cover costs. On the other side, a pie chain needs apples as an input and faces the opposite risk: if apple prices rise too much, its margins may collapse.
+
+To reduce this uncertainty, the farmer and the pie chain can agree today that at harvest time the pie chain will buy 1 million pounds of apples for \$0.20 per pound.
+\end{example}
+
+\trimimgfigure{image5.png}{0.56}{A forward contract lets a producer and a consumer lock in a future transaction price, reducing uncertainty for both sides.}{0.6cm 0.6cm 0.6cm 0.6cm}
+
+\begin{remark}
+This agreement benefits both sides. The farmer gains predictability and can plan around a known selling price. The pie chain gains cost certainty and avoids being exposed to large upward price moves in apples.
+\end{remark}
+
+\subsection{Obligation in a Forward Contract}
+
+\begin{remark}
+A forward is not merely an option to transact later. It is a bilateral obligation. On the delivery date, the seller must deliver the asset and the buyer must provide payment at the agreed price.
+\end{remark}
+
+\begin{example}
+If the agreed price is \$0.20 per pound for 1 million pounds of apples, then on the delivery date:
+\begin{itemize}[leftmargin=2em]
+    \item the farmer must deliver 1 million pounds of apples, and
+    \item the pie chain must pay \$200{,}000.
+\end{itemize}
+\end{example}
+
+\subsection{From Forwards to Futures}
+
+\begin{definition}[Futures Contract]
+A \textbf{futures contract} is a standardized exchange-traded agreement to buy or sell an asset at a specified future time and price.
+\end{definition}
+
+\begin{remark}
+Futures are closely related to forwards, but unlike forwards they trade on an exchange and use standardized contract terms. This standardization makes them easier to trade, offset, and clear.
+\end{remark}
+
+\begin{remark}
+The exchange stands between the buyer and seller. This is what makes it possible for one participant to buy from one party and later sell to another without being left with a messy custom agreement.
+\end{remark}
+
+\subsection{How the Exchange Makes the Market Work}
+
+\begin{remark}
+An exchange can profit by standing in the middle of buyers and sellers. For example, it may effectively buy exposure from one side at one price and sell exposure to the other side at a slightly better price, earning the spread.
+\end{remark}
+
+\begin{example}[Exchange Spread]
+Suppose the exchange facilitates contracts where one side effectively sells at \$0.20 per pound and the other side buys at \$0.22 per pound. The exchange earns a spread of
+\[
+0.22 - 0.20 = 0.02
+\]
+per pound.
+\end{example}
+
+\trimimgfigure{image6.png}{0.56}{The exchange stands in the middle of the transaction, earning the spread while requiring margin from participants to reduce default risk.}{0.6cm 0.6cm 0.6cm 0.6cm}
+
+\begin{remark}
+If the contract covers 1{,}000 pounds, then a \$0.02 spread corresponds to
+\[
+1000 \times 0.02 = 20
+\]
+dollars per contract.
+\end{remark}
+
+\subsection{Margin and Counterparty Protection}
+
+\begin{definition}[Margin]
+\textbf{Margin} is money that market participants must post as a financial cushion against adverse price movement.
+\end{definition}
+
+\begin{remark}
+Margin helps the exchange manage counterparty risk. If prices move sharply against one side of a contract, the posted margin provides protection and helps ensure that both parties can still meet their obligations.
+\end{remark}
+
+\begin{remark}
+This is one of the central differences between exchange-traded contracts and purely private agreements. Exchange markets reduce the risk that one side simply fails to perform.
+\end{remark}
+
+\subsection{Producers and Consumers}
+
+\begin{definition}[Producer and Consumer Hedging]
+A \textbf{producer} is a participant who expects to own or create the underlying asset in the future, while a \textbf{consumer} expects to need that asset in the future.
+\end{definition}
+
+\begin{remark}
+Producers and consumers often use futures to lock in prices. The producer protects against falling prices, while the consumer protects against rising prices.
+\end{remark}
+
+\begin{example}
+A farmer expecting to harvest wheat in November may sell November wheat futures now. If wheat prices fall later, the farmer loses in the cash market but gains on the futures position. If wheat prices rise later, the farmer gains in the cash market but loses on the futures position. In either case, much of the price risk has been hedged.
+\end{example}
+
+\subsection{Options on Futures}
+
+\begin{definition}[Option on a Future]
+An \textbf{option on a future} is an option whose underlying instrument is a futures contract rather than a stock or a cash index.
+\end{definition}
+
+\begin{remark}
+This means the option does not directly turn into the physical commodity. Instead, if exercised, it creates or transfers a futures position at the strike price.
+\end{remark}
+
+\trimimgfigure{image7.png}{0.42}{Mechanically, an option on a future either expires worthless or turns into a futures position if exercised. The resulting future then follows its own settlement process later.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Mechanics of Exercise}
+
+\begin{example}[Exercise Outcome]
+Suppose Trader A buys a call option on a future from Trader B. At expiry, if the option is worth exercising, Trader A exercises it and receives a futures position at the strike price. Trader B, as the seller, must deliver the corresponding futures position.
+\end{example}
+
+\begin{remark}
+After exercise, the option contract is gone, but the futures position remains. That futures position may later be closed out, cash settled, or physically delivered depending on the contract.
+\end{remark}
+
+\begin{remark}
+If the option is not worth exercising at expiry, then it simply expires worthless and no futures contract is created from that option.
+\end{remark}
+
+\subsection{Why This Matters for Options Market Making}
+
+\begin{remark}
+For an options market maker, understanding futures is necessary because futures are often the underlying products being priced and hedged. If the fair value of the future changes, the fair value of the option changes as well.
+\end{remark}
+
+\begin{remark}
+This is why options market makers care deeply about the current futures market, its bid-ask spread, the size resting in the book, and the settlement mechanics of the underlying contract.
+\end{remark}
+
+\section{Exercise: Forward Prices}
+
+Options are priced off the forward value of the underlying asset, not just the current spot price. A simple first model for the forward price of a stock with no dividends is
+\[
+F = S(1 + rt),
+\]
+where
+\begin{itemize}[leftmargin=2em]
+    \item \(F\) is the forward price,
+    \item \(S\) is the current stock price,
+    \item \(r\) is the annual interest rate, and
+    \item \(t\) is time in years.
+\end{itemize}
+
+\subsection{Exercise Statement}
+
+Assume the following:
+\begin{itemize}[leftmargin=2em]
+    \item Stock: XYZ
+    \item Current date: May 5, 2020
+    \item Expiration date: January 15, 2021
+    \item Days until expiration: 253
+    \item Current stock price: \(S = \$303.00\)
+    \item Interest rate: \(r = 1\% = 0.01\)
+    \item Assume the stock pays no dividends
+\end{itemize}
+
+Compute the forward price of stock XYZ for January 15, 2021.
+
+\subsection{Solution}
+
+First convert time into years:
+\[
+t = \frac{253}{365}.
+\]
+
+Now substitute into the formula:
+\[
+F = 303\left(1 + 0.01 \cdot \frac{253}{365}\right).
+\]
+
+Compute the interest adjustment:
+\[
+0.01 \cdot \frac{253}{365} \approx 0.0069315.
+\]
+
+So,
+\[
+F = 303(1.0069315).
+\]
+
+Therefore,
+\[
+F \approx 305.1002.
+\]
+
+Rounded to the nearest cent,
+\[
+\boxed{F = \$305.10.}
+\]
+
+\subsection{Correct Answer}
+
+The correct choice is
+\[
+\boxed{305.10.}
+\]
+
+\begin{remark}
+Because the stock pays no dividends in this exercise, the forward price is above the current stock price by the financing cost of carrying the stock to the future date.
+\end{remark}
+
+\section{Options on Listed Futures}
+
+\subsection{Calls and Puts}
+
+\begin{definition}[Call Option]
+A \textbf{call option} is the right, but not the obligation, to buy the underlying asset at a specified price, called the strike price, on or before expiration.
+\end{definition}
+
+\begin{definition}[Put Option]
+A \textbf{put option} is the right, but not the obligation, to sell the underlying asset at a specified strike price on or before expiration.
+\end{definition}
+
+\begin{remark}
+Options are derivative instruments. Their value is based on the value of an underlying contract, often a future or a stock.
+\end{remark}
+
+\subsection{Reading a Basic Options Table}
+
+\begin{remark}
+A listed options market is usually organized by expiration date and strike. For each strike, the market displays bid, theoretical value, and ask for both calls and puts.
+\end{remark}
+
+\trimimgfigure{image8.png}{0.34}{A simplified listed-options table showing calls and puts for two strike prices under a single expiration date.}{0.2cm 0.2cm 0.2cm 0.2cm}
+
+\begin{example}[Interpreting the 315 Strike]
+Suppose the 315 call has a theoretical value of 8.00 and is quoted
+\[
+7.75 \text{ at } 8.25.
+\]
+A buyer paying 8.25 purchases the right to buy the underlying asset at 315. The seller of that option takes on the obligation to sell the underlying at 315 if the option is exercised.
+\end{example}
+
+\begin{example}[Interpreting the 315 Put]
+Suppose the 315 put has a theoretical value of 6.00 and is quoted
+\[
+5.75 \text{ at } 6.25.
+\]
+A buyer of the put acquires the right to sell the underlying at 315. The seller of the put takes on the obligation to buy the underlying at 315 if the option is exercised.
+\end{example}
+
+\begin{remark}
+Different strikes are listed one below another. For a given expiration, there are usually many strike prices above and below the current underlying level.
+\end{remark}
+
+\subsection{A More Complete Options Screen}
+
+\begin{remark}
+In a full options screen, the strikes usually run down the middle, with call markets on one side and put markets on the other. In addition to bid and ask prices, the screen may show theoretical value, bid size, ask size, and trader position columns.
+\end{remark}
+
+\begin{example}[Reading One Option Line]
+Suppose the 55-strike call has:
+\[
+\text{bid} = 1.775, \qquad \text{theo} = 1.85, \qquad \text{ask} = 1.90.
+\]
+This means:
+\begin{itemize}[leftmargin=2em]
+    \item the highest current bid is 1.775,
+    \item the desk's theoretical value is 1.85,
+    \item the lowest current offer is 1.90.
+\end{itemize}
+If the bid quantity is 85 and the ask quantity is 63, then 85 contracts are bid at 1.775 and 63 contracts are offered at 1.90.
+\end{example}
+
+\begin{remark}
+The bid is the best immediately sellable price. The ask is the best immediately buyable price. The theoretical value sits between them as the market maker's estimate of fair value.
+\end{remark}
+
+\subsection{Looking Up Options on Yahoo Finance}
+
+\begin{remark}
+Public sites such as Yahoo Finance can be used to inspect listed option chains. While these screens are delayed, they are still useful for learning how strikes, expirations, and bid-ask markets are displayed.
+\end{remark}
+
+\trimimgfigure{image10.png}{0.52}{A stock summary page. The options tab leads to the listed option chain for that stock.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\begin{example}[First Step]
+To look up options on Apple, one may first search for the ticker \texttt{AAPL} on Yahoo Finance and open the stock summary page. From there, clicking the \textbf{Options} tab opens the option chain.
+\end{example}
+
+\begin{remark}
+Once inside the option chain, the user can choose an expiration date and inspect the calls and puts listed for that maturity. A straddle-style view is often more helpful than a simple list because it places calls and puts on the same line by strike.
+\end{remark}
+
+\begin{example}[Comparing Calls and Puts Near Spot]
+Suppose the stock is trading around 303.49 and we inspect the 300 strike. If the call and put values are relatively close, that should not be surprising. Both contracts are near the current stock price, and their relationship will later be explained more formally through put-call relationships.
+\end{example}
+
+\subsection{Contract Specifications}
+
+\begin{definition}[Contract Specifications]
+\textbf{Contract specifications} are the exchange-defined details of an option or futures contract, such as expiration date, strike listing conventions, settlement type, tick increment, and multiplier.
+\end{definition}
+
+\begin{remark}
+These specifications vary by product and are always set by the exchange. For options on futures, it is especially important to know which underlying future the option references and how exercise and settlement work.
+\end{remark}
+
+\subsection{Multipliers and Contract Size}
+
+\begin{remark}
+Financial contracts do not all translate price movement into dollars in the same way. The multiplier converts a move in points into actual cash value.
+\end{remark}
+
+\begin{definition}[Multiplier]
+The \textbf{multiplier} is the scaling factor that converts the quoted contract price into notional value and profit-and-loss.
+\end{definition}
+
+\begin{example}[Stock Multiplier]
+If one share of stock is bought at \$175.05 and later sold at \$175.80, then the gain is
+\[
+175.80 - 175.05 = 0.75.
+\]
+Since the stock multiplier is 1 share, the total profit is simply \$0.75 per share.
+\end{example}
+
+\begin{remark}
+For stocks, this is simple because the multiplier is 1. For futures and options on futures, the multiplier is often much larger and product-specific.
+\end{remark}
+
+\subsection{Futures Multipliers}
+
+\begin{example}[Corn Futures]
+One corn future represents 5000 bushels of corn. If corn is quoted at 384 cents per bushel, then the notional value of one contract is
+\[
+3.84 \times 5000 = 19{,}200.
+\]
+\end{example}
+
+\begin{remark}
+A one-cent move in corn corresponds to
+\[
+0.01 \times 5000 = 50
+\]
+dollars per contract.
+\end{remark}
+
+\begin{remark}
+Corn futures trade in quarter-cent ticks, that is,
+\[
+0.25 \text{ cents} = 0.0025 \text{ dollars}.
+\]
+Since a full cent is worth \$50, one quarter-cent tick is worth
+\[
+\frac{50}{4} = 12.50
+\]
+dollars per contract.
+\end{remark}
+
+\begin{example}[Corn Tick P\&L]
+If we buy 10 corn futures at 383.75 and sell 10 at 384.00, then we earn one tick on each contract. The profit is
+\[
+0.25 \times 0.01 \times 5000 \times 10 = 125.
+\]
+So the total profit is
+\[
+\boxed{\$125.00.}
+\]
+\end{example}
+
+\subsection{Options Multipliers}
+
+\begin{remark}
+Options also have multipliers. Stock options usually have a multiplier of 100, meaning one option corresponds to 100 shares. Options on futures usually have a multiplier of 1 option to 1 future, but that future itself may carry a large underlying commodity multiplier.
+\end{remark}
+
+\begin{example}
+A corn option typically converts into one corn future if exercised. Since one corn future represents 5000 bushels, the economic exposure of the option is tied to that futures multiplier.
+\end{example}
+
+\subsection{Edge Versus Cash}
+
+\begin{definition}[Edge]
+\textbf{Edge} is the amount by which a trade price differs from the trader's current theoretical value, measured in points or ticks.
+\end{definition}
+
+\begin{remark}
+Traders often discuss option trades in terms of edge instead of immediate cash P\&L. This is especially common in options trading, where the important first question is often whether the trade was done above or below theoretical value.
+\end{remark}
+
+\begin{example}[Edge in Points]
+Suppose an option is worth 1.00 theoretically and we sell it at 1.04. Then we made
+\[
+1.04 - 1.00 = 0.04
+\]
+points of edge.
+\end{example}
+
+\begin{remark}
+If the option ticks in pennies, then 0.04 points is also 4 ticks of edge. If the option ticks in 2-cent increments, then the same 0.04 corresponds to 2 ticks.
+\end{remark}
+
+\begin{definition}[Cash P\&L from Edge]
+To convert edge into cash, use
+\[
+\text{Cash P\&L} = \text{edge} \times \text{contracts traded} \times \text{multiplier}.
+\]
+\end{definition}
+
+\begin{example}[Edge to Cash]
+Suppose we sell 20 contracts of an option at 1.04 when our theoretical value is 1.00, and suppose the multiplier is 1000. Then the edge is 0.04, so the corresponding cash P\&L is
+\[
+0.04 \times 20 \times 1000 = 800.
+\]
+Thus the trade represents
+\[
+\boxed{\$800}
+\]
+of theoretical profit relative to our current theo.
+\end{example}
+
+\subsection{Corn Option Edge Example}
+
+\begin{example}[Corn 400 Call]
+Suppose we sell 20 corn 400 call options at 20.25 and we have them worth 20.00. Then our edge is
+\[
+20.25 - 20.00 = 0.25.
+\]
+Because agricultural options often tick in 0.125 increments, this corresponds to
+\[
+\frac{0.25}{0.125} = 2
+\]
+ticks of edge.
+\end{example}
+
+\begin{remark}
+So one could say either:
+\begin{itemize}[leftmargin=2em]
+    \item ``we got 25 cents of edge,''
+    \item ``we got 2 ticks of edge.''
+\end{itemize}
+Both statements describe the same trade.
+\end{remark}
+
+\begin{example}[Corn Cash P\&L]
+To convert that edge into cash, note that 0.25 cents means
+\[
+0.25 \times 0.01 = 0.0025 \text{ dollars}.
+\]
+Then
+\[
+0.0025 \times 5000 \times 20 = 250.
+\]
+So the total theoretical cash P\&L is
+\[
+\boxed{\$250.}
+\]
+\end{example}
+
+\begin{remark}
+A useful shortcut is to treat the 5000 bushel multiplier as 50 when working in cents instead of dollars. Then
+\[
+0.25 \times 50 \times 20 = 250,
+\]
+which gives the same answer more quickly.
+\end{remark}
+
+\section{Important Terminology and Electronic Marketplaces}
+
+We have already introduced many of the key market-making terms in earlier sections. This section revisits the most important ones from a more practical angle and then explains how electronic marketplaces organize speed, matching, and clearing.
+
+\subsection{A Basic Quoted Market}
+
+\trimimgfigure{image12.png}{0.58}{Electronic market architecture connecting trading systems, exchange matching engines, clearing firms, and the clearinghouse.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\begin{example}[Reading a Simple Market]
+Suppose a product is quoted as follows:
+\[
+145 \text{ bid at } 930, \qquad \text{theo} = 945, \qquad 960 \text{ offered for } 240.
+\]
+This means:
+\begin{itemize}[leftmargin=2em]
+    \item 145 contracts are bid at 930,
+    \item the desk's theoretical value is 945,
+    \item 240 contracts are offered at 960.
+\end{itemize}
+\end{example}
+
+\begin{remark}
+The quoted market is the live trading environment. The theoretical value is not itself tradable, but it is the internal reference point against which a trader judges whether a bid or offer is attractive.
+\end{remark}
+
+\subsection{Review of Core Trading Terms}
+
+\begin{remark}
+At the most basic level:
+\begin{itemize}[leftmargin=2em]
+    \item the \textbf{bid} is where someone is willing to buy,
+    \item the \textbf{offer} is where someone is willing to sell,
+    \item the \textbf{size} is how many contracts are available,
+    \item to \textbf{make a market} is to quote both a bid and an offer,
+    \item the \textbf{spread} is the difference between the best bid and best offer.
+\end{itemize}
+\end{remark}
+
+\begin{remark}
+Two other important broad terms are:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{hedge}: a trade that reduces the risk of a larger position,
+    \item \textbf{paper}: the outside customer flow trading against the market maker.
+\end{itemize}
+\end{remark}
+
+\subsection{Market Participants Revisited}
+
+\begin{remark}
+A \textbf{trader} is any active market participant. A \textbf{market maker} is a trader who continuously quotes two-sided markets and tries to earn the bid-ask spread while managing risk. A \textbf{local} is the older pit-trading term for a market maker, often historically an independent trader or small group concentrated in one pit.
+\end{remark}
+
+\begin{remark}
+A \textbf{broker} acts as an intermediary between buyers and sellers, especially on floors. Institutional participants such as hedge funds, banks, and asset managers often provide large outside orders, while retail customers tend to be smaller and less sophisticated.
+\end{remark}
+
+\subsection{Queue Priority in Practice}
+
+\begin{definition}[Queue Priority]
+\textbf{Queue priority} determines who trades first when multiple participants are bidding or offering at the same price.
+\end{definition}
+
+Electronic markets commonly use \textbf{price-time priority}:
+\begin{enumerate}[leftmargin=2em]
+    \item better price ranks first,
+    \item within the same price, earlier time ranks first.
+\end{enumerate}
+
+\begin{example}[Who Trades First?]
+Suppose the order book contains the following bids:
+\[
+\begin{array}{ccl}
+A & : & 12{:}43{:}01.00 \quad 1.25 \text{ bid } 30 \\
+B & : & 12{:}43{:}01.02 \quad 1.25 \text{ bid } 20 \\
+C & : & 12{:}43{:}01.05 \quad 1.25 \text{ bid } 250 \\
+D & : & 12{:}25{:}00.00 \quad 1.24 \text{ bid } 500
+\end{array}
+\]
+\end{example}
+
+\begin{remark}
+The three orders at 1.25 are ahead of the order at 1.24 because price comes first. Among the three orders at 1.25, the execution order is \(A\), then \(B\), then \(C\), because time comes next.
+\end{remark}
+
+\begin{example}[A Seller Arrives]
+If someone now wants to sell 20 contracts at 1.25, they trade first with order \(A\), since \(A\) is first in line at the best bid.
+\end{example}
+
+\begin{remark}
+After that trade, order \(A\) is partially filled and still has 10 contracts remaining. Since it was only partially filled, it stays at the front of the queue for its remaining size.
+\end{remark}
+
+\subsection{Tick Size and Order Types Revisited}
+
+\begin{definition}[Tick Increment]
+The \textbf{tick increment} is the minimum allowed price change between one quoted price and the next.
+\end{definition}
+
+\begin{remark}
+If a market ticks in cents, then valid prices look like
+\[
+100.01,\; 100.02,\; 100.03,\; \dots
+\]
+and prices in between are not valid.
+\end{remark}
+
+\begin{definition}[Immediate-or-Cancel]
+An \textbf{immediate-or-cancel (IOC)} order is executed immediately for whatever amount can trade at the stated price or better. Any remaining quantity is canceled at once.
+\end{definition}
+
+\begin{remark}
+This makes IOC orders especially important in electronic trading, where speed matters and traders often want to interact with the current market without leaving residual exposure resting in the book.
+\end{remark}
+
+\begin{definition}[GFD and GTC]
+A \textbf{good-for-day (GFD)} order remains active for the trading day unless executed or canceled. A \textbf{good-'til-canceled (GTC)} order remains active until filled or explicitly canceled.
+\end{definition}
+
+\begin{definition}[Liquidity]
+\textbf{Liquidity} is the ability to buy or sell meaningful size without moving the market too much and without crossing an excessively wide spread.
+\end{definition}
+
+\begin{remark}
+Liquidity depends on both displayed size and market width. A product can be active, but still not be very liquid if size is thin or the spread is too wide.
+\end{remark}
+
+\subsection{How Electronic Markets Work}
+
+\trimimgfigure{image12.png}{0.58}{Electronic market architecture connecting trading systems, exchange matching engines, clearing firms, and the clearinghouse.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\begin{remark}
+Electronic markets separate responsibilities across several layers:
+\begin{itemize}[leftmargin=2em]
+    \item trading servers calculate values and send quotes or orders,
+    \item the exchange matching engine matches orders,
+    \item clearing firms record and support the firm's positions,
+    \item the clearinghouse stands behind the matched trades across firms.
+\end{itemize}
+\end{remark}
+
+\begin{remark}
+Anything requiring extremely low latency tends to happen as close to the exchange as possible. This includes rapid quote updates, pre-calculated values, and aggressive orders such as IOC orders.
+\end{remark}
+
+\begin{remark}
+Human traders still matter in electronic markets. They adjust settings, manage parameters, monitor risk, and decide when quotes should be turned on or off. The machines are fast, but the trading logic and risk controls are still supervised by people.
+\end{remark}
+
+\subsection{Why Standardized Contracts Matter}
+
+\begin{remark}
+Before organized exchanges, producers and consumers often entered into private forward agreements. Those contracts had several weaknesses:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{counterparty risk}: will the other side actually perform?
+    \item \textbf{quality uncertainty}: what exactly will be delivered?
+    \item \textbf{size mismatch}: can you find someone for your exact quantity?
+\end{itemize}
+\end{remark}
+
+\begin{remark}
+Exchanges solve these problems through \textbf{standardization}. They specify the contract size, delivery rules, product quality, delivery locations, and trading increments. This allows one person to buy from any participant and another to sell to any participant without custom negotiation each time.
+\end{remark}
+
+\begin{remark}
+In practice, the exchange becomes the central trusted framework for the contract. This drastically reduces the risk and friction that would exist in a purely private market.
+\end{remark}
+
+\subsection{The Life of a Future}
+
+\trimimgfigure{image13.png}{0.34}{The life cycle of a futures contract: listing, trading period, notice period, and eventual settlement or delivery.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{definition}[Life Cycle of a Future]
+A \textbf{futures contract} is listed before expiry, trades actively for a period of time, then enters a notice or delivery window, and finally settles either through cash settlement or physical delivery depending on the product.
+\end{definition}
+
+\begin{example}[Corn Future Timeline]
+A November corn future may be listed months before expiration. During most of its life, participants are free to trade it back and forth. As expiry approaches, the contract enters a notice period. After that, participants still holding the contract may face physical delivery obligations.
+\end{example}
+
+\begin{remark}
+Most market-making firms do not want physical delivery exposure. They flatten their positions before the delivery window becomes operational. In agricultural products such as corn, this means getting out well before any obligation to ship or receive actual grain.
+\end{remark}
+
+\begin{remark}
+This is one reason futures are so useful. Most participants can trade price exposure for months without any intention of ever delivering the commodity. The delivery mechanism is essential to the contract's credibility, but most traders exit before that stage.
+\end{remark}
+
+\subsection{Connection to Options Market Making}
+
+\begin{remark}
+These ideas matter directly for options traders. The option sits on top of an underlying market structure that includes ticks, queue priority, contract multipliers, matching rules, clearing, and settlement mechanics. To make prices in options well, a market maker has to understand all of those layers.
+\end{remark}
+
+\begin{remark}
+In other words, options pricing is not just about formulas. It is also about market structure: how contracts trade, how they clear, how they settle, and how quickly one can react when the underlying market changes.
+\end{remark}
+
+\section{Futures Ladders and Options Basics}
+
+In many listed commodity and futures markets, options do not each have their own completely separate underlying instrument. Instead, multiple option expiration months are mapped onto a smaller set of futures contracts. This is why traders need to understand not only the option month itself, but also which futures month that option is tied to.
+
+\subsection{What a Futures Ladder Shows}
+
+\begin{definition}[Futures Ladder]
+A \textbf{futures ladder} is a screen that shows the current bid prices, ask prices, and associated sizes for a specific futures contract month.
+\end{definition}
+
+\begin{remark}
+Each ladder corresponds to one futures expiration month. In the example considered here, the available futures contracts are January, March, and June.
+\end{remark}
+
+\trimimgfigure{image14.png}{0.50}{Example of several futures ladders lined up with a sequence of option expiration months. The key idea is that the option months map onto the listed futures months by expiry order.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{How Option Months Map to Futures Months}
+
+\begin{remark}
+The important idea is that option months and futures months are arranged by expiration date. Since futures are listed less frequently than options, several option months may share the same underlying futures contract.
+\end{remark}
+
+\begin{remark}
+In the example, there are 7 option months:
+\begin{itemize}[leftmargin=2em]
+    \item November options
+    \item December options
+    \item January options
+    \item February options
+    \item March options
+    \item April options
+    \item May options
+\end{itemize}
+but only 3 futures months:
+\begin{itemize}[leftmargin=2em]
+    \item January future
+    \item March future
+    \item June future
+\end{itemize}
+\end{remark}
+
+\subsection{Underlying Month Selection Rule}
+
+\begin{definition}[Option-to-Future Mapping Rule]
+An option month is based on the first futures contract that expires after the option itself.
+\end{definition}
+
+\begin{remark}
+This is why nearby option months often share the same underlying futures contract. The option expires first, and the future that comes next in time becomes the underlying contract for that option.
+\end{remark}
+
+\subsection{Example: November Options}
+
+\begin{example}[Which Future Underlies November Options?]
+Suppose the listed futures months are January, March, and June, while the option months begin with November and December.
+
+November options are not based on a November future, because that future is not listed here. They are instead based on the next futures month in the sequence, which is the \textbf{January future}.
+\end{example}
+
+\subsection{Why This Matters}
+
+\begin{remark}
+This mapping matters because the option's fair value depends on the price of its underlying future. If you use the wrong futures contract, then your pricing, hedging, and risk calculations will all be off.
+\end{remark}
+
+\begin{remark}
+For market makers, this is one of the first structural details to get right. Before thinking about volatility, edge, or spreads, one must identify the correct underlying contract.
+\end{remark}
+
+\subsection{Connection to Earlier Sections}
+
+\begin{remark}
+Once the correct underlying future is identified, the trader can use the futures ladder to observe the live bid, ask, and size in that contract. Those prices then feed directly into option valuation and quoting.
+\end{remark}
+
+\section{Payoff Diagrams}
+
+\begin{definition}[Payoff Diagram]
+A \textbf{payoff diagram} is a graph of profit and loss at expiration as a function of the underlying price.
+\end{definition}
+
+\begin{remark}
+In a payoff diagram, the horizontal axis is the underlying price at expiration and the vertical axis is the resulting profit or loss. These diagrams are especially useful for understanding the mechanics of single options and simple option combinations.
+\end{remark}
+
+\begin{remark}
+Although market makers usually do not think in terms of holding one option all the way to expiration, payoff diagrams are still a useful stepping stone because they make the expiration mechanics visually clear. 
+\end{remark}
+
+\subsection{Long Underlying at Price 50}
+
+\begin{definition}[Long Underlying]
+To be \textbf{long} the underlying means to have bought it.
+\end{definition}
+
+\begin{example}
+If we buy the underlying at a price of 50, then the payoff at expiration is
+\[
+S_T - 50,
+\]
+where \(S_T\) is the underlying price at expiration.
+\end{example}
+
+\begin{remark}
+This produces a straight 45-degree line. For every \$1 increase in the underlying, profit rises by \$1, and for every \$1 decrease, profit falls by \$1.
+\end{remark}
+
+\subsection{Long Call for Price 1.00}
+
+\begin{definition}[Long Call]
+A \textbf{long call} is the purchase of a call option, giving the right but not the obligation to buy the underlying at the strike price.
+\end{definition}
+
+\begin{example}
+Suppose we buy a call with strike \(K\) for a premium of 1.00. Then the payoff at expiration is
+\[
+\max(S_T-K,0)-1.00.
+\]
+\end{example}
+
+\begin{remark}
+If the underlying finishes below the strike, the call expires worthless and the buyer loses the premium paid. Once the underlying moves above the strike, the call gains value one-for-one with the underlying.
+\end{remark}
+
+\begin{remark}
+For a long call:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 1.00\),
+    \item maximum gain \(= \infty\),
+    \item breakeven \(= K + 1.00\).
+\end{itemize}
+\end{remark}
+
+\trimimgfigure{image15.png}{0.46}{Example payoff diagram for the buyer of a call. Below the strike the option loses only its premium, while above the strike it gains value one-for-one with the underlying.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsection{Long Put for Price 2.00}
+
+\begin{definition}[Long Put]
+A \textbf{long put} is the purchase of a put option, giving the right but not the obligation to sell the underlying at the strike price.
+\end{definition}
+
+\begin{example}
+Suppose we buy a put with strike \(K\) for a premium of 2.00. Then the payoff at expiration is
+\[
+\max(K-S_T,0)-2.00.
+\]
+\end{example}
+
+\begin{remark}
+If the underlying finishes above the strike, the put expires worthless and the buyer loses the premium paid. If the underlying finishes below the strike, the put gains value one-for-one as the underlying falls.
+\end{remark}
+
+\begin{remark}
+For a long put:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 2.00\),
+    \item maximum gain \(= K - 2.00\),
+    \item breakeven \(= K - 2.00\).
+\end{itemize}
+\end{remark}
+
+\trimimgfigure{image17.png}{0.46}{Example payoff diagram for the buyer of a put. Above the strike the option loses only its premium, while below the strike it gains value as the underlying falls.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsection{Long Call Spread for 4.00, Strikes 10 Apart}
+
+\begin{definition}[Long Call Spread]
+A \textbf{long call spread} is created by buying a lower-strike call and selling a higher-strike call.
+\end{definition}
+
+\begin{example}
+Suppose we buy the \(K_1\) call and sell the \(K_2\) call, where
+\[
+K_2-K_1=10,
+\]
+and we pay 4.00 for the spread. Then the payoff at expiration is
+\[
+\max(S_T-K_1,0)-\max(S_T-K_2,0)-4.00.
+\]
+\end{example}
+
+\begin{remark}
+Below \(K_1\), both options expire worthless, so the spread loses its cost of 4.00. Between \(K_1\) and \(K_2\), the lower-strike call gains value. Above \(K_2\), the short higher-strike call offsets any further gain, so the payoff flattens out. This creates the familiar capped-upside spread shape.
+\end{remark}
+
+\begin{remark}
+For a long call spread with width 10 and premium 4.00:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 4.00\),
+    \item maximum gain \(= 10 - 4.00 = 6.00\),
+    \item breakeven \(= K_1 + 4.00\).
+\end{itemize}
+\end{remark}
+
+\subsection{Long Put Spread for 3.00, Strikes 20 Apart}
+
+\begin{definition}[Long Put Spread]
+A \textbf{long put spread} is created by buying a higher-strike put and selling a lower-strike put.
+\end{definition}
+
+\begin{example}
+Suppose we buy the higher-strike put \(K_1\), sell the lower-strike put \(K_2\), where
+\[
+K_1-K_2=20,
+\]
+and pay 3.00 for the spread. Then the payoff at expiration is
+\[
+\max(K_1-S_T,0)-\max(K_2-S_T,0)-3.00.
+\]
+\end{example}
+
+\begin{remark}
+Above the higher strike, both puts expire worthless and the spread loses its premium. As the underlying falls below the higher strike, the long put begins gaining value. Once the underlying falls below the lower strike, the short put offsets additional gains, so the diagram flattens on the left.
+\end{remark}
+
+\begin{remark}
+For a long put spread with width 20 and premium 3.00:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 3.00\),
+    \item maximum gain \(= 20 - 3.00 = 17.00\),
+    \item breakeven \(= K_1 - 3.00\).
+\end{itemize}
+\end{remark}
+
+\subsection{Long Call Butterfly for Price 2.00, Strikes 10 Apart}
+
+\begin{definition}[Long Call Butterfly]
+A \textbf{long call butterfly} is formed by buying one lower-strike call, selling two middle-strike calls, and buying one higher-strike call.
+\end{definition}
+
+\begin{example}
+Suppose the strikes are equally spaced:
+\[
+K_1,\quad K_2,\quad K_3
+\]
+with
+\[
+K_2-K_1 = K_3-K_2 = 10,
+\]
+and the butterfly costs 2.00. Then the payoff at expiration is
+\[
+\max(S_T-K_1,0) - 2\max(S_T-K_2,0) + \max(S_T-K_3,0) - 2.00.
+\]
+\end{example}
+
+\begin{remark}
+A butterfly has a tent-shaped payoff. It loses the premium paid when the underlying finishes too far left or too far right, and makes the most money when the underlying finishes near the middle strike. 
+\end{remark}
+
+\begin{remark}
+For a long call butterfly with wing width 10 and premium 2.00:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 2.00\),
+    \item maximum gain \(= 10 - 2.00 = 8.00\),
+    \item lower breakeven \(= K_1 + 2.00\),
+    \item upper breakeven \(= K_3 - 2.00\).
+\end{itemize}
+\end{remark}
+
+\trimimgfigure{image19.png}{0.42}{Example payoff diagram for a long call butterfly. The buyer wants the underlying to finish near the middle strike, where the payoff is highest.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\begin{remark}
+The seller of the butterfly has the mirror-image payoff about the zero-profit line. The buyer prefers a relatively tight final distribution around the middle strike, while the seller benefits when the underlying moves away from that region.
+\end{remark}
+
+\subsection{Long Straddle for Price 1.00}
+
+\begin{definition}[Long Straddle]
+A \textbf{long straddle} consists of buying a call and a put at the same strike and expiration.
+\end{definition}
+
+\begin{example}
+Suppose we buy both the call and the put at strike \(K\), and the total premium paid is 1.00. Then the payoff at expiration is
+\[
+\max(S_T-K,0)+\max(K-S_T,0)-1.00.
+\]
+\end{example}
+
+\begin{remark}
+A long straddle profits when the underlying makes a large move in either direction. It loses if the underlying finishes close to the strike, because in that case neither option finishes with enough value to recover the premium paid.
+\end{remark}
+
+\begin{remark}
+For a long straddle purchased for 1.00:
+\begin{itemize}[leftmargin=2em]
+    \item maximum loss \(= 1.00\),
+    \item maximum gain \(= \infty\) on the upside and large on the downside down to zero,
+    \item lower breakeven \(= K - 1.00\),
+    \item upper breakeven \(= K + 1.00\).
+\end{itemize}
+\end{remark}
+
+\subsection{Why Market Makers Use These Only as a Learning Tool}
+
+\begin{remark}
+On a real options desk, traders usually do not buy one option or one spread and simply hold it to expiration. They trade many options, hedge continuously with the underlying, and manage a large book rather than one isolated payoff diagram. That is why payoff diagrams are best viewed as a mechanical teaching tool rather than a literal picture of how a market-making book is run. 
+\end{remark}
+
+\subsection{Basic Options Strategies Explained}
+
+Many beginner option strategies can be understood as simple modifications of a basic underlying position. From the simplified novice perspective, these strategies are usually framed around four practical goals:
+\begin{itemize}[leftmargin=2em]
+    \item generating extra income from a long position,
+    \item protecting an existing long position against downside,
+    \item making a directional bet without owning the underlying outright,
+    \item betting that the underlying will either move a lot or stay near a strike.
+\end{itemize}
+
+\begin{remark}
+This section presents these strategies in the simplified way that novice traders often think about them. That framing is useful for intuition, but it ignores many of the risk, pricing, and Greek-related issues that become essential in more serious options trading.
+\end{remark}
+
+\subsubsection{Most People Are Long the Market}
+
+A useful starting point is the observation that many investors are already long the market in some form. Individuals buy stocks directly, retirement accounts such as 401(k)s and IRAs often hold stock exposure, and institutions such as pensions and university endowments also tend to own assets that benefit when markets rise.
+
+\begin{remark}
+So when we discuss beginner options strategies, many of them are best understood as overlays on top of an already long position in the underlying.
+\end{remark}
+
+\subsubsection{Covered Calls}
+
+\begin{definition}[Covered Call]
+A \textbf{covered call} consists of a long position in the underlying together with a short call option written against that position.
+\end{definition}
+
+\begin{remark}
+The short call brings in option premium immediately. That premium shifts the payoff of the long underlying upward by the amount collected, but in exchange the trader gives up some upside beyond the call strike.
+\end{remark}
+
+\begin{example}
+Suppose an investor owns the underlying at price \(P\) and sells a call for 1.00 with strike \(K\). Then:
+\begin{itemize}[leftmargin=2em]
+    \item the investor receives 1.00 in premium,
+    \item the break-even on the long underlying effectively shifts from \(P\) to \(P-1.00\),
+    \item upside past \(K\) is capped.
+\end{itemize}
+\end{example}
+
+\begin{remark}
+This is called a \emph{covered} call because the trader already owns the underlying and can therefore deliver it if the short call is exercised.
+\end{remark}
+
+\begin{remark}
+From the beginner's perspective, a covered call is often viewed as a way to generate ``extra cash'' if the underlying stays flat, rises only modestly, or even declines slightly.
+\end{remark}
+
+\subsubsection{Puts as Protection}
+
+\begin{definition}[Protective Put]
+A \textbf{protective put} consists of a long position in the underlying together with a long put option.
+\end{definition}
+
+\begin{remark}
+Buying the put costs premium, so it shifts the break-even point against the investor by the amount paid. However, it also limits downside once the underlying falls below the put strike.
+\end{remark}
+
+\begin{example}
+Suppose an investor owns the underlying at price \(P\) and buys a put for 1.00 with strike \(K\). Then:
+\begin{itemize}[leftmargin=2em]
+    \item the investor pays 1.00 out of pocket,
+    \item the break-even shifts from \(P\) to \(P+1.00\),
+    \item losses below \(K\) are capped.
+\end{itemize}
+\end{example}
+
+\begin{remark}
+This strategy is commonly described as buying insurance. The investor gives up some immediate cost in order to protect against a severe decline in the underlying.
+\end{remark}
+
+\subsubsection{Directional Trades Without Owning the Underlying}
+
+A trader does not need to own the underlying in order to speculate on direction. Options allow directional exposure with a smaller upfront cash outlay than buying the full stock or futures contract.
+
+\paragraph{Bullish view.}
+If a trader thinks the underlying will go up, several simple strategies are common.
+
+\begin{definition}[Long Call]
+A \textbf{long call} is a bullish trade with limited downside and potentially unlimited upside.
+\end{definition}
+
+\begin{remark}
+The buyer of the call pays the call premium up front. That premium is the known maximum loss.
+\end{remark}
+
+\begin{definition}[Long Call Spread]
+A \textbf{long call spread} is a bullish vertical spread formed by buying a lower-strike call and selling a higher-strike call.
+\end{definition}
+
+\begin{remark}
+Compared with a long call, a call spread costs less, but it also caps upside. This makes it a cheaper but more limited bullish trade.
+\end{remark}
+
+\begin{definition}[Short Put]
+A \textbf{short put} is another bullish trade because it benefits if the underlying stays above the strike or rises.
+\end{definition}
+
+\begin{remark}
+Although a short put can express a bullish view, it exposes the trader to substantially larger downside risk than simply buying a call.
+\end{remark}
+
+\paragraph{Bearish view.}
+If a trader thinks the underlying will go down, the natural analogues are:
+
+\begin{itemize}[leftmargin=2em]
+    \item buy a put,
+    \item buy a put spread,
+    \item in some cases, sell a call.
+\end{itemize}
+
+\begin{remark}
+A long put is the bearish mirror image of a long call. A put spread is the cheaper but capped-upside bearish counterpart. Selling a call also gives downside exposure, though again with more risk than simply buying a put.
+\end{remark}
+
+\subsubsection{Call Spreads and Put Spreads}
+
+\begin{definition}[Call Spread]
+A \textbf{call spread} uses two calls at different strikes to create a capped bullish payoff.
+\end{definition}
+
+\begin{definition}[Put Spread]
+A \textbf{put spread} uses two puts at different strikes to create a capped bearish payoff.
+\end{definition}
+
+\begin{remark}
+Spreads are often attractive to novices because they reduce premium cost relative to outright option purchases. The trade-off is that they also reduce the maximum possible gain.
+\end{remark}
+
+\begin{example}
+A trader who buys a 50 strike call for 1.00 and sells a 55 strike call for 0.50 has paid a net premium of
+\[
+1.00 - 0.50 = 0.50.
+\]
+This creates a long call spread with:
+\begin{itemize}[leftmargin=2em]
+    \item max loss \(= 0.50\),
+    \item max gain \(= 5.00 - 0.50 = 4.50\),
+    \item breakeven \(= 50.50\).
+\end{itemize}
+\end{example}
+
+\subsubsection{Straddles}
+
+\begin{definition}[Straddle]
+A \textbf{straddle} consists of buying a call and a put at the same strike and expiration.
+\end{definition}
+
+\begin{remark}
+A long straddle is a bet on movement, not direction. The trader wants the underlying to move far enough away from the strike that one side of the position more than pays for the total premium spent.
+\end{remark}
+
+\begin{remark}
+This is useful when the trader believes the underlying will make a large move but does not know whether that move will be upward or downward.
+\end{remark}
+
+\begin{example}
+Suppose a trader buys a call for 1.00 and a put for 0.80 at the same strike. Then the total premium paid is
+\[
+1.00 + 0.80 = 1.80.
+\]
+The trader profits only if the underlying moves far enough away from the strike to overcome that 1.80 cost.
+\end{example}
+
+\begin{definition}[Short Straddle]
+A \textbf{short straddle} consists of selling both the call and the put at the same strike.
+\end{definition}
+
+\begin{remark}
+The short straddle is the opposite bet. Instead of wanting the underlying to move a lot, the trader wants it to stay near the strike so that both options expire with little or no value.
+\end{remark}
+
+\begin{example}
+If the trader sells the call for 1.00 and the put for 0.80, then the total premium collected is
+\[
+1.80.
+\]
+That 1.80 is the maximum profit, and it occurs if the underlying finishes exactly at the strike at expiration.
+\end{example}
+
+\begin{remark}
+The danger of the short straddle is that large moves in either direction can create very large losses.
+\end{remark}
+
+\subsubsection{A Simplified Summary}
+
+From the novice perspective, the most common simple strategies can be summarized as follows:
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Covered call:} collect premium, but cap upside.
+    \item \textbf{Protective put:} pay premium, but limit downside.
+    \item \textbf{Long call / long put:} simple directional bets with known premium loss.
+    \item \textbf{Call spread / put spread:} cheaper directional bets with capped gains.
+    \item \textbf{Straddle:} a bet that the underlying will move a lot.
+\end{itemize}
+
+\begin{remark}
+These are the ``paper'' strategies most commonly discussed in popular options content. Later, with Greeks and more complete pricing tools, the same strategies can be analyzed much more rigorously in terms of volatility, convexity, time decay, and hedging.
+\end{remark}
+
+\subsection{Time Premium and Put--Call Parity}
+
+Option prices can be broken into two parts:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Intrinsic value}, and
+    \item \textbf{Extrinsic value}, also called \textbf{time premium}.
+\end{itemize}
+
+This decomposition is one of the cleanest ways to understand how options are priced.
+
+\subsubsection{In-the-Money and Out-of-the-Money}
+
+\begin{definition}[In-the-Money]
+An option is \textbf{in-the-money (ITM)} if it already has value based on the current relationship between the underlying price and the strike.
+\end{definition}
+
+\begin{definition}[Out-of-the-Money]
+An option is \textbf{out-of-the-money (OTM)} if it has no intrinsic value at the current underlying price.
+\end{definition}
+
+For calls and puts:
+\begin{itemize}[leftmargin=2em]
+    \item a call is ITM when \(U > K\),
+    \item a call is OTM when \(U < K\),
+    \item a put is ITM when \(K > U\),
+    \item a put is OTM when \(K < U\).
+\end{itemize}
+
+\begin{remark}
+So calls with strike below the underlying are ITM, while puts with strike above the underlying are ITM. The other two regions are OTM.
+\end{remark}
+
+\subsubsection{Intrinsic Value}
+
+\begin{definition}[Intrinsic Value]
+The \textbf{intrinsic value} of an option is the amount the option is worth from immediate exercise value alone.
+\end{definition}
+
+For calls,
+\[
+\text{Intrinsic Value(call)}=\max(0,U-K).
+\]
+
+For puts,
+\[
+\text{Intrinsic Value(put)}=\max(0,K-U).
+\]
+
+\begin{example}
+If the underlying is trading at \(370\) and we look at a \(330\) call, then the call has intrinsic value
+\[
+370-330=40.
+\]
+If instead we look at a \(430\) put, then the put has intrinsic value
+\[
+430-370=60.
+\]
+\end{example}
+
+\begin{remark}
+An ITM option must be worth at least its intrinsic value. An OTM option has zero intrinsic value.
+\end{remark}
+
+\trimimgfigure{image22.png}{0.56}{Intrinsic value across strikes. Calls with strike below the underlying have intrinsic value equal to \(U-K\), while puts with strike above the underlying have intrinsic value equal to \(K-U\).}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsubsection{Extrinsic Value or Time Premium}
+
+\begin{definition}[Extrinsic Value / Time Premium]
+The \textbf{extrinsic value}, also called \textbf{time premium}, is the part of the option price that comes from optionality rather than immediate exercise.
+\end{definition}
+
+So every option price satisfies
+\[
+\text{Option Price}=\text{Intrinsic Value}+\text{Extrinsic Value}.
+\]
+
+This means:
+\begin{itemize}[leftmargin=2em]
+    \item ITM options have both intrinsic and extrinsic value,
+    \item OTM options have only extrinsic value.
+\end{itemize}
+
+\begin{example}
+Suppose the underlying is \(370\) and a \(330\) call trades at \(42.92\). Its intrinsic value is
+\[
+370-330=40,
+\]
+so its extrinsic value is
+\[
+42.92-40=2.92.
+\]
+\end{example}
+
+\begin{remark}
+Extrinsic value exists because the contract still has time left. Even an OTM option can become valuable before expiration if the underlying moves enough.
+\end{remark}
+
+\begin{remark}
+The three main drivers of extrinsic value are:
+\begin{itemize}[leftmargin=2em]
+    \item distance to at-the-money,
+    \item time to expiration,
+    \item implied volatility.
+\end{itemize}
+\end{remark}
+
+\trimimgfigure{image23.png}{0.56}{Option price decomposed into intrinsic and extrinsic value. OTM options contain only extrinsic value, while ITM options contain both intrinsic and extrinsic value.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsubsection{Forward Price Intuition}
+
+Before discussing put--call parity, it is useful to think in terms of the \textbf{forward price} of the underlying rather than just the current spot price. The forward reflects the current underlying level together with interest rates, dividends, and carrying costs when relevant.
+
+\begin{remark}
+Once the forward price is fixed, the strike's distance from that forward is what determines whether the option is ITM or OTM and how much intrinsic value it has.
+\end{remark}
+
+\subsubsection{Put--Call Parity}
+
+\begin{definition}[Put--Call Parity]
+For a call and put on the same strike and expiration, the simplified put--call parity relation is
+\[
+C-P=U-K.
+\]
+\end{definition}
+
+Equivalently,
+\[
+U=C-P+K.
+\]
+
+This identity is fundamental. If it did not hold, an arbitrage opportunity would exist.
+
+\begin{remark}
+Put--call parity says that a call and put on the same line are mathematically linked. Knowing any three of the quantities \(C\), \(P\), \(U\), and \(K\) determines the fourth.
+\end{remark}
+
+\subsubsection{Synthetic Underlying Interpretation}
+
+A very useful interpretation is:
+\[
+\text{long call} + \text{short put} \equiv \text{long underlying forward}.
+\]
+
+Why? At expiration:
+\begin{itemize}[leftmargin=2em]
+    \item if the underlying finishes above the strike, the call is exercised,
+    \item if the underlying finishes below the strike, the short put is exercised against you.
+\end{itemize}
+
+Either way, you end up effectively buying the underlying at the strike price.
+
+Similarly,
+\[
+\text{short call} + \text{long put} \equiv \text{short underlying forward}.
+\]
+
+\begin{remark}
+This synthetic interpretation is the intuition behind PCP. Calls, puts, and the underlying are not independent securities. They can be transformed into one another through replication.
+\end{remark}
+
+\trimimgfigure{image24.png}{0.52}{Put--call parity viewed through payoff replication. The relationship \(C-P=U-K\) links call price, put price, underlying price, and strike so that no arbitrage exists.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsubsection{A Pricing Example}
+
+\begin{example}
+Suppose
+\[
+C=15.34,\qquad U=85,\qquad K=75.
+\]
+Use put--call parity:
+\[
+C-P=U-K.
+\]
+So
+\[
+15.34-P=85-75=10.
+\]
+Hence
+\[
+P=15.34-10=5.34.
+\]
+\end{example}
+
+Now break the call into intrinsic and extrinsic parts:
+\[
+\text{Intrinsic(call)}=85-75=10,
+\]
+so the call's extrinsic value is
+\[
+15.34-10=5.34.
+\]
+
+\begin{remark}
+In this example, the call consists of \(10\) of intrinsic value and \(5.34\) of extrinsic value. The corresponding put value \(5.34\) is the matching time premium in the simplified zero-interest interpretation.
+\end{remark}
+
+\subsubsection{Interest Rates and the Forward Version}
+
+The simplified formula
+\[
+C-P=U-K
+\]
+is best for intuition. In practice, financing matters, so traders often use a forward-adjusted version:
+\[
+F=(C-P)e^{rt}+K,
+\]
+where \(F\) is the forward price, \(r\) is the interest rate, and \(t\) is time to expiration.
+
+\begin{remark}
+Across strikes, raw values of \(C-P+K\) may not imply exactly the same underlying unless interest rates are incorporated. Once financing is handled properly, the implied forward values line up much more closely.
+\end{remark}
+
+\subsection{Video: Lecture 2 --- Theos and Combination Spreads}
+
+This lecture focuses on two ideas that are central to practical options market making:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{theoretical values} (or \emph{theos}), and
+    \item \textbf{combination spreads}, also called \emph{combos}.
+\end{enumerate}
+
+\subsubsection{Theoretical Values and Edge}
+
+A market maker constantly keeps track of a theoretical fair value for each option. This theoretical value is called the \textbf{theo}. The point of the theo is not just to estimate what an option is worth, but to measure whether a trade was favorable or unfavorable relative to the market maker's own pricing model.
+
+\begin{definition}[Theoretical Value]
+The \textbf{theoretical value} of an option is the market maker's internal estimate of the fair price of that contract.
+\end{definition}
+
+\begin{remark}
+Unlike a passive investor, a market maker actively updates theos as inputs move. In practice, this often means adjusting volatility assumptions, especially implied volatility.
+\end{remark}
+
+The lecture emphasizes that market makers care deeply about controlling their theos because that is how they track:
+\begin{itemize}[leftmargin=2em]
+    \item whether they bought cheap or sold rich,
+    \item how much edge they captured,
+    \item and how their book's valuation changes as the market moves.
+\end{itemize}
+
+\trimimgfigure{image25.png}{0.62}{Reviewing the role of theoretical values. Market makers control their theos by adjusting model inputs such as implied volatility.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsubsection{The Long-Run Anchor of Option Prices}
+
+One important intuition from the lecture is that option prices do not float freely forever. As expiration approaches, an option must converge toward either:
+\begin{itemize}[leftmargin=2em]
+    \item \(\,0\), if it expires out of the money, or
+    \item its \textbf{intrinsic value}, if it expires in the money.
+\end{itemize}
+
+\begin{remark}
+This is a useful anchor for thinking about theos. Whatever the current model price is, at expiration the optionality disappears. What remains is only exercise value.
+\end{remark}
+
+\trimimgfigure{image26.png}{0.62}{Option value above intrinsic prior to expiration. The gap between the market value curve and intrinsic value represents time value.}{0.5cm 0.5cm 0.5cm 0.5cm}
+
+\subsection{Options Limits and Boundaries}
+
+There are several structural relationships in options that should always hold. These bounds are useful both for checking whether a quoted market is reasonable and for identifying possible mispricings. They are not modeling assumptions. They follow from the contract payoffs themselves.
+
+\subsubsection{Basic Bounds}
+
+Some of the most important option limits are:
+
+\begin{itemize}[leftmargin=2em]
+    \item An option can never be worth less than \(0\).
+    \item An in-the-money call can never be worth less than its intrinsic value:
+    \[
+    \max(F-K,0).
+    \]
+    \item An in-the-money put can never be worth less than its intrinsic value:
+    \[
+    \max(K-F,0).
+    \]
+    \item A call spread can never be worth less than \(0\) and can never be worth more than the strike difference.
+    \item A put spread can never be worth less than \(0\) and can never be worth more than the strike difference.
+    \item A symmetric butterfly can never be worth less than \(0\).
+    \item A same-strike calendar spread on the same underlying should not be worth less than \(0\), since the longer-dated option contains at least as much optionality as the shorter-dated one.
+    \item Put--call parity should hold. If it does not, there is an arbitrage inconsistency.
+\end{itemize}
+
+\begin{remark}
+These bounds are some of the fastest and most useful sanity checks in options trading. Before doing anything fancy, a trader should first ask whether a quoted value even satisfies the basic payoff constraints.
+\end{remark}
+
+\subsubsection{Intrinsic Value as a Hard Lower Bound}
+
+If a call is already in the money, it must be worth at least the amount that could be realized by immediate exercise. Likewise for a put. This gives the lower bounds
+
+\[
+C \ge \max(F-K,0),
+\qquad
+P \ge \max(K-F,0).
+\]
+
+So if the future is above the strike, the call must be worth at least \(F-K\). If the future is below the strike, the put must be worth at least \(K-F\).
+
+\begin{remark}
+An ITM option may be worth more than intrinsic value because it still has time value, but it should never be worth less.
+\end{remark}
+
+\subsubsection{Call Spread Bounds}
+
+Consider a call spread with strikes \(K_1 < K_2\), defined by
+
+\[
+\text{CS} = C(K_1) - C(K_2).
+\]
+
+At expiration, this spread has only three possible regimes:
+
+\begin{itemize}[leftmargin=2em]
+    \item If \(F \le K_1\), both calls expire worthless, so
+    \[
+    \text{CS} = 0.
+    \]
+    \item If \(K_1 < F < K_2\), the lower-strike call is in the money and the upper-strike call is not, so
+    \[
+    \text{CS} = F-K_1.
+    \]
+    \item If \(F \ge K_2\), both calls are in the money, and their difference is fixed:
+    \[
+    \text{CS} = (F-K_1) - (F-K_2) = K_2-K_1.
+    \]
+\end{itemize}
+
+Therefore,
+
+\[
+0 \le \text{CS} \le K_2-K_1.
+\]
+
+This is why a call spread can never be negative and can never be worth more than the width between strikes.
+
+\subsubsection{Midpoint Approximation for a Call Spread}
+
+A very useful rule of thumb is that if the future is roughly at the midpoint of the two strikes, then the call spread should be worth roughly half the strike width.
+
+For example, if the strikes are \(100\) and \(150\), then the width is \(50\). If the future is around the midpoint \(125\), then a reasonable first approximation is
+
+\[
+\text{CS} \approx 25.
+\]
+
+The intuition is simple:
+\begin{itemize}[leftmargin=2em]
+    \item far below the lower strike, the spread should behave like \(0\),
+    \item far above the upper strike, the spread should behave like the full strike width,
+    \item near the midpoint, it should sit around half-width.
+\end{itemize}
+
+\begin{remark}
+With time still remaining, the spread transitions smoothly between these extremes rather than jumping sharply. But the midpoint approximation is still a very useful mental anchor.
+\end{remark}
+
+\subsubsection{How the Individual Legs Converge}
+
+Another way to understand spread limits is to reason directly from the individual options as expiration approaches.
+
+Suppose the future is above both strikes \(K_{100}=100\) and \(K_{105}=105\). Then the two calls converge to intrinsic value:
+
+\[
+C(100) \to F-100,
+\qquad
+C(105) \to F-105.
+\]
+
+So the call spread converges to
+
+\[
+(F-100) - (F-105) = 5.
+\]
+
+Thus the \(100/105\) call spread converges to its full width, namely \(5\).
+
+Now look at the puts with those same strikes. If the future is above both strikes, both puts are out of the money, so each converges to \(0\). Hence the corresponding put spread converges to \(0\).
+
+This gives a clean rule:
+
+\begin{itemize}[leftmargin=2em]
+    \item when the future finishes above both strikes, the call spread converges to full width and the put spread converges to \(0\),
+    \item when the future finishes below both strikes, the put spread converges to full width and the call spread converges to \(0\).
+\end{itemize}
+
+\subsubsection{Board-Based Interpretation}
+
+These same relationships can be seen directly on an options board. As the future moves up through a strike region, lower-strike calls become more in the money first, while higher-strike calls lag behind. That difference is exactly what creates the value of a call spread.
+
+Similarly, as the future moves down through a strike region, higher-strike puts gain intrinsic value before lower-strike puts do, which is what drives put spread value.
+
+So the board is not just a list of separate options. The values across strikes are linked by hard payoff relationships.
+
+\subsubsection{Other Important Structural Bounds}
+
+The same logic extends beyond simple vertical spreads.
+
+\paragraph{Butterflies.}
+A symmetric butterfly is built as
+\[
++1,\,-2,\,+1
+\]
+across three equally spaced strikes. Its payoff can never be negative at expiration, so its fair value should never be negative before expiration either.
+
+\paragraph{Calendars.}
+A same-strike calendar spread compares two expirations on the same underlying. The longer-dated option should not be worth less than the shorter-dated one, since it gives the holder strictly more optionality.
+
+\paragraph{Put--call parity.}
+Calls, puts, strikes, and the underlying are connected by a strict relationship. If that relationship is violated, then some package of options and underlying can be bought and sold to lock in arbitrage.
+
+
+These bounds are foundational because they let traders check prices quickly, estimate neighboring strikes, and recognize when a quoted market is clearly inconsistent.
+
+\section{Delta}
+
+\subsection{Definition and Intuition}
+
+\begin{definition}[Delta]
+\textbf{Delta}, denoted by \(\Delta\), measures the sensitivity of an option's price to a change in the price of the underlying.
+\end{definition}
+
+In practice, delta is the most immediate Greek for understanding directional exposure. It tells us how much the option price should change for a small move in the underlying, and it also tells us how much of the underlying we need to trade in order to hedge that option position.
+
+\begin{remark}
+Market makers usually think about delta first because it is the Greek most directly tied to short-term directional risk.
+\end{remark}
+
+There are three common ways to interpret delta:
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Price sensitivity:} how much the option price changes for a small move in the underlying.
+    \item \textbf{Hedge ratio:} how many underlying contracts are needed to offset the option's directional exposure.
+    \item \textbf{Approximate probability of finishing in the money:} a rough rule of thumb often used by traders.
+\end{enumerate}
+
+\trimimgfigure{image30.png}{0.70}{Call deltas lie between 0 and 1, while put deltas lie between 0 and \(-1\). On a screen, traders often use the delta columns to quickly gauge directional exposure across strikes.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Call and Put Delta Ranges}
+
+A call option always has positive delta:
+\[
+0 \le \Delta_{\text{call}} \le 1.
+\]
+
+A put option always has negative delta:
+\[
+-1 \le \Delta_{\text{put}} \le 0.
+\]
+
+Traders often drop the decimal and speak in whole-number terms. For example:
+\[
+0.57 \text{ delta} \quad \text{is called} \quad 57 \text{ delta.}
+\]
+
+Likewise, a put with delta \(-0.20\) may simply be called a ``20 delta put,'' with the negative sign understood from context.
+
+\begin{remark}
+Calls become more valuable as the underlying rises, so their deltas are positive. Puts become more valuable as the underlying falls, so their deltas are negative.
+\end{remark}
+
+\subsection{Delta as Price Sensitivity}
+
+The first and most literal interpretation of delta is that it approximates the change in option value for a small move in the underlying.
+
+\begin{example}[Small move in the underlying]
+Suppose the underlying is at \$100.00.
+
+Let a call option be worth \$1.00 with delta \(+0.30\), and let a put option be worth \$3.00 with delta \(-0.70\).
+
+If the underlying rises by \$0.20, then the new call value is approximately
+\[
+1.00 + (0.20)(0.30) = 1.06,
+\]
+while the new put value is approximately
+\[
+3.00 + (0.20)(-0.70) = 2.86.
+\]
+\end{example}
+
+If instead the underlying falls by \$0.50, then the call value becomes approximately
+\[
+1.00 + (-0.50)(0.30) = 0.85,
+\]
+and the put value becomes approximately
+\[
+3.00 + (-0.50)(-0.70) = 3.35.
+\]
+
+\trimimgfigure{image27.png}{0.48}{Example of delta as price sensitivity. A call with positive delta rises with the underlying, while a put with negative delta falls when the underlying rises and increases when the underlying falls.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+This is only a local approximation. Delta works well for small underlying moves. For larger moves, the delta itself changes, which is exactly what gamma will later describe.
+\end{remark}
+
+\subsection{Delta as Hedge Ratio}
+
+The second interpretation of delta is as a hedge ratio. If an option position has directional exposure, we can trade the underlying against it to offset that exposure.
+
+\begin{definition}[Delta hedge]
+A \textbf{delta hedge} is a position in the underlying taken to offset the directional exposure of an option or option portfolio.
+\end{definition}
+
+We can also think of the hedge rule as a sign calculation: the action on the option times the option's directional exposure gives the position's overall exposure, and the hedge must be taken in the opposite direction.
+
+\trimimgfigure{image32.png}{0.40}{The hedge can be understood as the opposite of the option position's directional exposure. This sign-based view makes the buy/sell hedge rule much easier to remember.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{example}[Hedging a long put]
+Suppose we buy 1 put with delta \(-0.30\). Since we are long an option with negative directional exposure, our position is short delta overall. To hedge that, we buy \(0.30\) units of the underlying.
+\end{example}
+
+\begin{remark}
+A delta-neutral hedge does not mean the position is riskless. It only means that for a small move in the underlying, the portfolio is approximately indifferent to direction.
+\end{remark}
+
+\subsection{Delta as Approximate ITM Probability}
+
+A third and more informal interpretation is that delta gives the approximate probability that an option finishes in the money.
+
+So:
+\[
+0.40 \text{ delta call} \approx 40\% \text{ chance of expiring ITM.}
+\]
+
+Similarly:
+\[
+-0.70 \text{ delta put} \approx 70\% \text{ chance of expiring ITM.}
+\]
+
+\begin{remark}
+This is a trader's rule of thumb, not a strict mathematical identity. It is intuitive and useful, but it becomes less exact once interest rates, dividends, and other pricing effects matter.
+\end{remark}
+
+\subsection{Call-Put Delta Relationship}
+
+For the same strike and expiration, call and put deltas are linked. Ignoring more advanced complications, we have the approximate relationship
+\[
+\Delta_{\text{call}} + |\Delta_{\text{put}}| = 1.
+\]
+
+\begin{example}
+If a call has delta \(0.91\), then the corresponding put has delta approximately
+\[
+-0.09.
+\]
+\end{example}
+
+\begin{remark}
+This relationship is why many traders mainly watch one delta column and infer the other side mentally.
+\end{remark}
+
+\subsection{How Volatility Affects Delta}
+
+Delta is not fixed. It changes when model inputs change.
+
+One important driver is implied volatility. When implied volatility rises, out-of-the-money option deltas tend to move closer to \(0.50\) in absolute terms because there is more chance that the option may finish in the money. When implied volatility falls, deltas move closer to their boundary values.
+
+\trimimgfigure{image28.png}{0.48}{Effect of implied volatility on delta. Higher volatility pushes deltas toward the middle, while lower volatility pushes them toward 0 or \(\pm 1\) depending on moneyness.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Higher volatility makes distant outcomes more plausible. That is why OTM options gain more ``chance'' and their deltas move inward toward \(0.50\) in absolute value.
+\end{remark}
+
+\subsection{How Time to Expiry Affects Delta}
+
+Time has a similar effect. More time to expiry gives the underlying more opportunity to move across strikes, so deltas tend to move toward the middle. Less time to expiry pushes deltas toward their expiration limits.
+
+\trimimgfigure{image29.png}{0.48}{Effect of time to expiry on delta. More time pushes deltas toward the middle; less time pushes them toward expiration-style boundary behavior.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+For example:
+\begin{itemize}[leftmargin=2em]
+    \item an OTM call's delta moves toward \(0.50\) as time increases and toward \(0\) as expiry approaches,
+    \item an ITM put's delta moves toward \(-0.50\) as time increases and toward \(-1\) as expiry approaches.
+\end{itemize}
+
+\begin{remark}
+Increasing time and increasing implied volatility often affect delta in qualitatively similar ways: both make the option's final state less certain and therefore move delta toward the middle.
+\end{remark}
+
+\subsection{Covered or Tied Trades}
+
+There is also a practical trading application of delta called a \textbf{covered trade} or \textbf{tied trade}. In this structure, the option trade and the hedge trade are agreed as a package.
+
+\begin{definition}[Covered trade]
+A \textbf{covered trade} is a package in which an option is traded together with its corresponding hedge in the underlying.
+\end{definition}
+
+\begin{remark}
+This removes the immediate directional component from the trade because both sides receive the option and the hedge together.
+\end{remark}
+
+\trimimgfigure{image33.png}{0.36}{Example of a tied or covered package: the buyer acquires calls and simultaneously sells futures, while the seller does the opposite.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{example}[Covered call package]
+Suppose a buyer purchases 50 calls at 2.75 and simultaneously sells 26 futures at 52.25 as the hedge. The seller takes the other side: short 50 calls and long 26 futures.
+\end{example}
+
+If multiple sellers are in the package market, the trade can be allocated across them according to their available quantities and priority.
+
+\trimimgfigure{image34.png}{0.40}{A tied package can be split across multiple counterparties, with each counterparty receiving its corresponding fraction of the option trade and hedge trade.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Since futures cannot be traded fractionally, hedge quantities are rounded to whole futures in actual execution.
+\end{remark}
+
+\subsection{Why Delta Matters So Much}
+
+Delta is the first Greek because it is the clearest bridge between pricing and trading.
+
+It tells us:
+\begin{itemize}[leftmargin=2em]
+    \item how an option reacts to a small underlying move,
+    \item how to hedge the option,
+    \item how directional the current book is,
+    \item and roughly how likely an option is to finish in the money.
+\end{itemize}
+
+\begin{remark}
+In practice, market makers constantly track both the delta of individual options and the net delta of the full portfolio. The portfolio view is what determines how much underlying they need to buy or sell to stay balanced.
+\end{remark}
+
+\section{Gamma}
+
+\subsection{Definition and Core Intuition}
+
+\begin{definition}[Gamma]
+\textbf{Gamma}, denoted by \(\Gamma\), is the rate of change of delta with respect to changes in the underlying price.
+\end{definition}
+
+Equivalently, gamma tells us how much an option's delta will change for a 1-point move in the underlying.
+
+\begin{remark}
+If delta is the first directional sensitivity of an option, then gamma measures how unstable or fast-changing that directional sensitivity is.
+\end{remark}
+
+\begin{example}[Basic gamma interpretation]
+Suppose an option has delta \(0.30\) and gamma \(0.02\).
+
+If the underlying rises by 1 point, the option's delta increases approximately to
+\[
+0.30 + 0.02 = 0.32.
+\]
+
+If the underlying falls by 1 point, the option's delta decreases approximately to
+\[
+0.30 - 0.02 = 0.28.
+\]
+\end{example}
+
+\subsection{Why Gamma Matters}
+
+Gamma matters because delta is not constant. As the underlying moves, the option's directional exposure changes. A market maker who is delta-neutral at one price will generally stop being delta-neutral after the underlying moves.
+
+\begin{remark}
+This is why gamma is so operationally important. Delta tells us our current exposure. Gamma tells us how fast that exposure will change once the market starts moving.
+\end{remark}
+
+\trimimgfigure{image37.png}{0.18}{Gamma changes delta in the same direction as the underlying move. When the underlying rises, delta becomes more positive; when the underlying falls, delta becomes more negative.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Long Gamma and Short Gamma}
+
+All outright options have positive gamma. Therefore:
+
+\begin{itemize}[leftmargin=2em]
+    \item if you are \textbf{long} an option, you are long gamma,
+    \item if you are \textbf{short} an option, you are short gamma.
+\end{itemize}
+
+A long gamma position gains deltas in the direction of the underlying move:
+\begin{itemize}[leftmargin=2em]
+    \item if the underlying rises, you get longer delta,
+    \item if the underlying falls, you get shorter delta.
+\end{itemize}
+
+A short gamma position experiences the exact opposite.
+
+\begin{remark}
+This is the core asymmetry of gamma. Long gamma helps you adapt with the move. Short gamma fights the move.
+\end{remark}
+
+\subsection{Gamma as the Curvature of Option Value}
+
+Gamma is also what creates curvature in option prices. Delta gives a local linear approximation, but gamma explains why that linear approximation changes as the underlying moves.
+
+\begin{example}[Price change with changing delta]
+Suppose the future starts at \(30.00\), the option price is \(0.91\), delta is \(0.31\), and gamma is \(0.06\).
+
+If the future rises to \(31.00\), the delta rises from \(0.31\) to about \(0.37\). A better approximation to the option price move is to use the average delta across the move:
+\[
+\frac{0.31 + 0.37}{2} = 0.34.
+\]
+So the option price increases by about \(0.34\), giving a new price near
+\[
+0.91 + 0.34 = 1.25.
+\]
+\end{example}
+
+\trimimgfigure{image38.png}{0.18}{Example of gamma changing delta during an underlying move. The option's price change is better approximated using the average delta across the move rather than the starting delta alone.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+This is why delta-only approximations break down for larger moves. Gamma makes delta itself move during the path.
+\end{remark}
+
+\subsection{Gamma and Re-Hedging}
+
+Because gamma changes delta, an option portfolio must be re-hedged after the underlying moves.
+
+\begin{definition}[Re-hedging]
+\textbf{Re-hedging} means trading the underlying again after a move in order to bring the portfolio back toward delta-neutral.
+\end{definition}
+
+\begin{example}[Gamma re-hedging intuition]
+Suppose a trader is long options with total option delta \(+50\), and has sold \(50\) futures to create a net delta of \(0\).
+
+If the underlying rises and the option position picks up \(+5\) more deltas from gamma, then the portfolio is now net \(+5\) delta. To get back to neutral, the trader sells \(5\) more futures.
+\end{example}
+
+\trimimgfigure{image35.png}{0.26}{Gamma re-hedging example. A long-gamma trader who picks up extra delta after an upward move can re-hedge by selling futures, and later buy them back if the market reverses.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Gamma Scalping}
+
+This repeated process of re-hedging after moves is what traders call \textbf{gamma scalping}.
+
+\begin{definition}[Gamma scalping]
+\textbf{Gamma scalping} is the process of repeatedly trading the underlying against a long-gamma options position as delta changes through market movement.
+\end{definition}
+
+The standard long-gamma pattern is:
+\begin{itemize}[leftmargin=2em]
+    \item market goes up \(\rightarrow\) you become longer delta \(\rightarrow\) you sell futures,
+    \item market comes back down \(\rightarrow\) you become shorter delta \(\rightarrow\) you buy futures back.
+\end{itemize}
+
+So if the market mean-reverts, the long-gamma trader tends to:
+\[
+\text{sell high, buy low.}
+\]
+
+That creates trading profit in the hedge.
+
+\begin{remark}
+Gamma scalping is not magic. The hedge profit must still be compared against theta decay. A long-gamma position can scalp well and still lose overall if too much option value decays through time.
+\end{remark}
+
+\subsection{Where Gamma Is Largest}
+
+Gamma is generally largest for options that are near the money, especially when expiration is close.
+
+\trimimgfigure{image39.png}{0.28}{Gamma peaks near at-the-money options across different times to expiry and volatility assumptions.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\trimimgfigure{image36.png}{0.28}{Gamma surface across strike and time to expiry. Gamma is most concentrated near at-the-money strikes and near expiration.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Near expiration, the option's final state becomes more binary. That makes delta change very rapidly around the at-the-money region, which is exactly why gamma spikes there.
+\end{remark}
+
+\subsection{Effect of Time and Volatility on Gamma}
+
+Gamma does not behave uniformly across all strikes.
+
+Two broad principles are most useful:
+
+\begin{itemize}[leftmargin=2em]
+    \item gamma is typically largest near the money,
+    \item gamma generally becomes more concentrated near expiry.
+\end{itemize}
+
+Lower-volatility and shorter-dated options tend to have sharper gamma concentration near the at-the-money region. Intuitively, when expiration is close, a small move in the underlying can change the probability of finishing in the money very quickly, so delta must adjust more aggressively.
+
+\begin{remark}
+Gamma is not flat across strike space. It is highest where the option is most sensitive to whether it finishes in or out of the money, which is why at-the-money options dominate most gamma discussions.
+\end{remark}
+
+\subsection{Gamma and the Shape of the Surface}
+
+Looking across both strike and maturity, gamma forms a surface rather than a single curve. Near-the-money options with little time remaining tend to sit at the highest part of that surface.
+
+
+A second way to view the same idea is to compare gamma curves under different volatility and time assumptions. The central pattern remains the same: gamma peaks around ATM options.
+
+\subsection{Long Gamma and Portfolio Management}
+
+The practical importance of gamma appears once we hedge a delta position. A trader may begin delta-neutral, but gamma guarantees that this neutrality will not survive a move in the underlying.
+
+Suppose we own a portfolio of options with total delta \(+50\). To neutralize that directional exposure, we sell \(50\) futures. The net portfolio delta is then approximately zero.
+
+If the underlying rises and our option position picks up \(+5\) more deltas through gamma, then the portfolio is no longer flat. It is now net \(+5\) deltas, so we must sell \(5\) more futures to restore neutrality.
+
+If the underlying later falls back and those deltas disappear, we must buy those futures back. In that case we have sold futures at a higher price and bought them back at a lower price.
+
+\trimimgfigure{image35.png}{0.26}{Gamma re-hedging example. A long-gamma trader gains delta in the direction of the move, then re-hedges by trading futures.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{definition}[Gamma Scalping]
+\textbf{Gamma scalping} is the repeated re-hedging of a long-gamma or short-gamma portfolio as the underlying moves and delta changes.
+\end{definition}
+
+For a \textbf{long gamma} trader, this usually means:
+\begin{itemize}[leftmargin=2em]
+    \item selling futures after the market rises,
+    \item buying futures after the market falls.
+\end{itemize}
+
+That is the favorable pattern:
+\[
+\text{sell high, buy low.}
+\]
+
+For a \textbf{short gamma} trader, the pattern reverses:
+\begin{itemize}[leftmargin=2em]
+    \item buying futures after the market rises,
+    \item selling futures after the market falls.
+\end{itemize}
+
+That is the unfavorable pattern:
+\[
+\text{buy high, sell low.}
+\]
+
+\begin{remark}
+This is the real trading intuition behind gamma. Long gamma helps the hedge. Short gamma hurts the hedge.
+\end{remark}
+
+\subsection{A Small Numerical Example}
+
+Assume a call has:
+\[
+\text{price} = 0.91, \qquad \Delta = 0.31, \qquad \Gamma = 0.06,
+\]
+with the future initially at \(30.00\).
+
+If the future rises to \(31.00\), then the option's delta rises approximately from
+\[
+0.31 \to 0.37.
+\]
+
+A better approximation to the option price change uses the average delta over the move:
+\[
+\frac{0.31+0.37}{2}=0.34.
+\]
+
+So the option price moves by about
+\[
+1 \times 0.34 = 0.34,
+\]
+which gives a new option price near
+\[
+0.91+0.34 = 1.25.
+\]
+
+\trimimgfigure{image38.png}{0.18}{Example of gamma changing delta during an underlying move. The option price change is better approximated with the average delta across the move.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Delta alone gives a linear approximation. Gamma explains why that approximation bends as the underlying moves.
+
+\trimimgfigure{image39.png}{0.28}{Gamma peaks near at-the-money options across different volatility and maturity assumptions.}{0.4cm 0.4cm 0.4cm 0.4cm}
+\end{remark}
+
+\subsection{Cash Gamma}
+
+In practice, traders often normalize gamma into a dollar-sized risk number called \textbf{cash gamma}.
+
+\begin{definition}[Cash Gamma]
+\textbf{Cash gamma} is the amount by which the portfolio's cash delta changes for a \(1\%\) move in the underlying.
+\end{definition}
+
+This is useful because raw gamma in ``deltas per point'' is not directly comparable across products with very different prices or multipliers.
+
+If one future has cash delta
+\[
+\text{Cash Delta} = (\text{future price}) \times (\text{multiplier}) \times 1,
+\]
+then cash gamma for a \(1\%\) move can be interpreted as:
+\[
+\text{Cash Gamma} = (\text{deltas picked up on a 1\% move}) \times (\text{cash delta of one future}).
+\]
+
+\begin{example}[Cash gamma intuition]
+Suppose a future is trading at \(50\), the contract multiplier is \(1000\), and a position picks up \(3\) deltas for a \(1\%\) move.
+
+Then one future has cash delta
+\[
+50 \times 1000 = 50{,}000.
+\]
+
+So the cash gamma is
+\[
+3 \times 50{,}000 = 150{,}000.
+\]
+\end{example}
+
+\begin{remark}
+Cash gamma is a sizing tool. It tells the trader not just that gamma exists, but how large the re-hedging pressure will be in dollars.
+\end{remark}
+
+\subsection{Why Traders Care So Much About Gamma}
+
+Gamma is the Greek that explains why option books do not stay still.
+
+It tells us:
+\begin{itemize}[leftmargin=2em]
+    \item how quickly delta will change,
+    \item how often the portfolio will need re-hedging,
+    \item whether the trader benefits or suffers from large realized moves in the underlying.
+\end{itemize}
+
+This is also why gamma is inseparable from hedging. A trader does not manage gamma in the abstract. Gamma shows up as repeated hedge adjustments in the underlying.
+
+\trimimgfigure{image37.png}{0.18}{Gamma changes delta in the same direction as the underlying move. As the market rises, delta becomes more positive; as it falls, delta becomes more negative.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Gamma Versus Theta}
+
+At first glance, long gamma sounds ideal. A long-gamma trader gains delta in the direction of the move and can profit from re-hedging. So why not always stay long gamma?
+
+Because long gamma is usually paid for through \textbf{theta}.
+
+As time passes, options lose value all else equal. That time decay is the cost of carrying long gamma.
+
+So the real economic tradeoff is:
+
+\begin{itemize}[leftmargin=2em]
+    \item a \textbf{long gamma} portfolio tends to benefit from movement,
+    \item a \textbf{short gamma} portfolio tends to benefit from time decay.
+\end{itemize}
+
+\begin{remark}
+A long-gamma position makes money when the realized movement of the underlying is large enough to outweigh the theta paid. A short-gamma position makes money when the theta collected is large enough to outweigh the losses from re-hedging adverse movement.
+\end{remark}
+
+This gamma-theta tradeoff is one of the central tensions in options market making and will appear repeatedly throughout the rest of these notes.
+
+
+\begin{remark}
+Gamma is what turns delta from a static number into a dynamic risk. Once the market moves, gamma is the reason the hedge must move too.
+\end{remark}
+
+\section{Theta}
+
+\subsection{Definition and Core Intuition}
+
+\begin{definition}[Theta]
+\textbf{Theta}, denoted by \(\Theta\), is the amount by which an option's theoretical value decreases as time passes, usually measured over the next 24-hour period.
+\end{definition}
+
+Theta is the Greek of \emph{time decay}. If all other inputs are held fixed, then an option becomes worth less as expiration gets closer.
+
+\begin{remark}
+Traders usually describe theta in terms of \textbf{paying theta} or \textbf{collecting theta}. If you are long options, you pay theta. If you are short options, you collect theta.
+\end{remark}
+
+\begin{remark}
+For an individual long option, theta is negative because time passing hurts the owner of optionality. From the opposite side, a short option position benefits from that same decay.
+\end{remark}
+
+\subsection{A Basic Example}
+
+Suppose we are long \(100\) options priced at \(2.00\), each with multiplier \(100\). If after 24 hours the model reprices them at \(1.93\), then the theta per option is
+\[
+\Theta = -0.07.
+\]
+
+So the total theta of the position is
+\[
+-0.07 \times 100 \times 100 = -700.
+\]
+
+This means the trader expects to lose about \(\$700\) from time decay over the next day, assuming all other pricing inputs remain unchanged.
+
+\begin{example}[Theta from a quoted option]
+Suppose a call has theoretical value
+\[
+11.04
+\]
+and theta
+\[
+-0.12.
+\]
+
+Then, holding everything else constant, the model says that in 24 hours the option should be worth about
+\[
+11.04 - 0.12 = 10.92.
+\]
+\end{example}
+
+\trimimgfigure{image42.png}{0.17}{Example of theta on an options board. The call and put at the same strike lose the same amount of time value over the next 24 hours.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Theta for Calls and Puts at the Same Strike}
+
+One important relationship is that a call and a put with the same strike and expiration have the same theta contribution from time decay, provided we are holding the other pricing inputs fixed.
+
+This is consistent with put-call parity. If the time decay of same-strike calls and puts were materially inconsistent, the relationship between call value, put value, strike, and underlying would not line up properly.
+
+\begin{remark}
+So when looking at a board, it is often useful to remember that the call and put on the same strike are tied together not only through parity, but also through the time-decay logic of the pricing model.
+\end{remark}
+
+\subsection{Theta as a Known Cost}
+
+Theta is especially useful because it represents a relatively predictable drag on option value over a short horizon.
+
+If you are long options, theta is the known cost of carrying that convexity for another day. The uncertain question is whether the market will move enough for your gamma or directional exposure to overcome that cost.
+
+\begin{remark}
+This is one of the most practical ways to think about theta: it is the bill you pay for continuing to own optionality.
+\end{remark}
+
+\subsection{Theta Versus Gamma}
+
+The most important practical relationship involving theta is the tradeoff between \textbf{theta paid} and \textbf{gamma gained}.
+
+A long-option position is long gamma, which means it can profit from underlying movement through re-hedging. But that same position also pays theta every day.
+
+So the real question is:
+\[
+\text{Did the realized movement of the underlying outweigh the theta decay paid?}
+\]
+
+\begin{example}[Gamma scalp versus theta decay]
+Suppose a trader owns \(100\) options with multiplier \(100\), and the theta is
+\[
+-0.12.
+\]
+
+Then the 24-hour theta cost is
+\[
+-0.12 \times 100 \times 100 = -1200.
+\]
+
+Now suppose the trader's gamma hedging over that same period generates
+\[
++600
+\]
+of hedge profit.
+
+Then the total result is
+\[
+-1200 + 600 = -600.
+\]
+
+So even though gamma scalping helped, the realized movement was not large enough to offset the theta paid.
+\end{example}
+
+\trimimgfigure{image43.png}{0.22}{Theta versus gamma example. The known decay cost from theta is compared against the uncertain hedge profit generated from gamma scalping.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+This comparison is one of the central ideas in options trading. Long gamma is valuable only if the movement you harvest is large enough to justify the theta you pay.
+\end{remark}
+
+Another way to say this is that if the option buyer makes more from movement than they lose from decay, then the underlying \emph{outrealized} what the option's implied pricing had embedded for that period.
+
+\subsection{Theta Across Strike Space}
+
+Theta is not uniform across strikes. It is generally largest in magnitude near the at-the-money region.
+
+That happens because ATM options still have the most time value to lose, and they are most sensitive to the narrowing window before expiration.
+
+\trimimgfigure{image44.png}{0.26}{Theta is greatest near at-the-money strikes. The near-expiry curve shows stronger time decay around ATM than the longer-dated curve.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Like gamma, theta tends to concentrate around ATM options. But unlike gamma, theta is a decay Greek, so the practical focus is usually on how expensive that optionality is to continue holding.
+\end{remark}
+
+\subsection{Theta Across Time to Expiration}
+
+Theta also changes with time to expiration. For at-the-money options, theta usually becomes larger in magnitude as expiration gets closer.
+
+That means the rate of decay accelerates as maturity gets short, especially for ATM strikes.
+
+\trimimgfigure{image40.png}{0.28}{Theta across time to expiration for different strikes. At-the-money options show the strongest increase in decay as expiry approaches.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+For out-of-the-money strikes, the pattern can be less clean. Some far OTM options may show relatively small theta near expiry because there is already very little premium left to lose.
+
+\begin{remark}
+The key takeaway is not that every strike behaves identically, but that for strikes near the money, theta tends to grow in magnitude as expiration approaches.
+\end{remark}
+
+\subsection{Theta Surface}
+
+We can also view theta as a surface across strike and maturity. This shows that the strongest decay is concentrated near the ATM region, with the effect becoming sharper as expiration shortens.
+
+\trimimgfigure{image41.png}{0.28}{Call option theta surface across strike and time to expiration. The deepest negative theta appears near at-the-money strikes and short maturities.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+The theta surface resembles the gamma surface in where it concentrates: near the at-the-money region and near expiration. This is not an accident. Gamma and theta are tightly linked through the economics of owning convexity.
+\end{remark}
+
+\subsection{A Practical Theta Rule}
+
+From a trader's point of view, theta can be summarized in a simple way:
+
+\begin{itemize}[leftmargin=2em]
+    \item long options pay theta,
+    \item short options receive theta,
+    \item ATM options usually have the largest magnitude of theta,
+    \item theta usually accelerates near expiry for ATM options.
+\end{itemize}
+
+This is why traders often talk about whether a position is \emph{cheap} or \emph{expensive} in theta terms. A position with a lot of gamma but too much theta may still be unattractive if realized movement is unlikely to justify the carry cost.
+
+\subsection{Gamma-Theta Efficiency}
+
+Traders often compare a portfolio's gamma to the theta they are paying. Informally, they ask whether the gamma/theta relationship is \emph{efficient}.
+
+A common rule-of-thumb benchmark is:
+\[
+\text{fair theta} \approx \frac{\text{cash gamma} \times \sigma^2}{200},
+\]
+where \(\sigma\) is the daily implied move in percent.
+
+\begin{example}[Gamma-theta efficiency]
+Suppose a trader has cash gamma
+\[
+1{,}000{,}000
+\]
+and implied volatility corresponds to a \(1\%\) expected daily standard deviation move.
+
+Then the rough fair theta is
+\[
+\frac{1{,}000{,}000 \times 1^2}{200} = 5{,}000.
+\]
+
+So if the trader is paying \(\$8{,}000\) of theta for that \(1{,}000{,}000\) of cash gamma, the position may be viewed as somewhat inefficient.
+\end{example}
+
+\begin{remark}
+This benchmark is only a heuristic, but it captures a market-making instinct: gamma is not judged in isolation. It is judged relative to what it costs to own.
+\end{remark}
+
+\subsection{Why Theta Matters So Much}
+
+Theta matters because it is always running in the background. Even when the market does nothing, time is still passing.
+
+So theta answers a basic question:
+\[
+\text{What is the expected carry cost of waiting?}
+\]
+
+If you are long options, doing nothing is costly. If you are short options, doing nothing is often beneficial.
+
+That is why theta is one of the most operationally important Greeks in real books. It is not just a theoretical sensitivity. It is the daily bleed or daily earn of the portfolio.
+
+\section{Volatility}
+
+\subsection{Why Volatility Matters}
+
+Before moving to vega, we need to define volatility clearly. Volatility is central to options because an option trader does not only care about \emph{direction}; they also care about the \emph{speed} and \emph{magnitude} of the underlying's movement. In practice, option prices are closely tied to how much the market has moved or is expected to move. 
+
+\begin{definition}[Volatility]
+\textbf{Volatility} is the degree of variation of an underlying's price over time, typically measured as the standard deviation of logarithmic returns and quoted on an annualized basis.
+\end{definition}
+
+A higher volatility means a wider distribution of possible future prices. A lower volatility means a tighter distribution concentrated closer to the current forward price.
+
+\subsection{Normal vs.\ Lognormal Thinking}
+
+Although many people first learn volatility through the normal distribution, option pricing usually works with a \emph{lognormal} framework for the underlying price. This is because prices compound over time, and because stocks and futures cannot go below zero.
+
+\begin{remark}
+A lognormal distribution has a tighter downside and a longer upside tail. This better reflects how asset prices behave in practice.
+\end{remark}
+
+\trimimgfigure{image47.png}{0.28}{Normal versus lognormal distributions. In options pricing, the lognormal shape is preferred because prices compound and cannot fall below zero.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Volatility as a Distribution of Future Prices}
+
+Volatility can be interpreted as a statement about the distribution of future prices. For example, if an underlying is trading at \(100\) and has \(20\%\) annual volatility, then roughly speaking:
+
+\[
+100 \pm 20
+\]
+
+gives the one-year one-standard-deviation range, so the asset is expected to lie between \(80\) and \(120\) about \(68\%\) of the time.
+
+Likewise, two standard deviations would give:
+
+\[
+100 \pm 40,
+\]
+
+so the range \(60\) to \(140\) contains roughly \(95\%\) of outcomes.
+
+\begin{remark}
+These percentages come from the usual one-standard-deviation and two-standard-deviation interpretation. In practice, the exact asset-price model is lognormal, so this is an approximation, but it is still very useful intuition.
+\end{remark}
+
+\trimimgfigure{image50.png}{0.26}{Standard-deviation interpretation of a probability distribution. Volatility is often understood through these one-, two-, and three-standard-deviation ranges.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+Different volatility assumptions produce different price distributions. Lower volatility gives a tighter, taller distribution. Higher volatility gives a wider, flatter one.
+
+\trimimgfigure{image46.png}{0.30}{Different volatility assumptions lead to different future price distributions. Higher volatility spreads probability mass over a wider range of outcomes.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Types of Volatility}
+
+There are several different volatility concepts used by traders.
+
+\begin{definition}[Historical Volatility]
+\textbf{Historical volatility} (or \textbf{realized volatility}) measures how much the underlying has moved over a past period using observed price data.
+\end{definition}
+
+\begin{definition}[Implied Volatility]
+\textbf{Implied volatility} is the market's current forecast of future volatility. It is the volatility input used in an option pricing model to produce current option theoretical values.
+\end{definition}
+
+\begin{definition}[Historical Implied Volatility]
+\textbf{Historical implied volatility} refers to the implied volatility that option markets were pricing during some past period.
+\end{definition}
+
+\begin{definition}[Forward Volatility]
+\textbf{Forward volatility} is the expected average volatility between two future expiration dates.
+\end{definition}
+
+A useful practical distinction is this:
+
+\begin{itemize}
+    \item \textbf{Historical / realized volatility} is backward-looking.
+    \item \textbf{Implied volatility} is forward-looking.
+\end{itemize}
+
+\trimimgfigure{image48.png}{0.24}{Implied volatility is forward-looking, while realized volatility becomes historical once the movement has already occurred.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Annualized Volatility}
+
+Volatility is usually quoted as an annualized number. If \(\sigma_{\text{daily}}\) is the standard deviation of daily log returns, then annualized volatility is approximately:
+
+\[
+\sigma_{\text{annual}} = \sigma_{\text{daily}} \sqrt{252}.
+\]
+
+More generally, if \(\sigma_{\text{annual}}\) is annualized volatility, then the one-standard-deviation move over \(t\) trading days is:
+
+\[
+\sigma_t = \sigma_{\text{annual}} \sqrt{\frac{t}{252}}.
+\]
+
+\trimimgfigure{image49.png}{0.30}{Converting between daily and annualized volatility, and using volatility to estimate the one-standard-deviation move over a horizon of \(t\) trading days.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{example}[From annual volatility to a one-day standard deviation move]
+Suppose volatility is \(20\%\), or \(0.20\) in decimal form. Then the one-day standard deviation move is
+
+\[
+0.20 \sqrt{\frac{1}{252}} \approx 0.0126,
+\]
+
+which is about \(1.26\%\).
+\end{example}
+
+\subsection{Standard Deviation Move vs.\ Expected Move}
+
+A very important distinction is that a one-standard-deviation move is \emph{not} the same thing as the expected daily move.
+
+For example, a \(16\) vol product has approximately a \(1\%\) one-day standard deviation move, since
+
+\[
+0.16 \sqrt{\frac{1}{252}} \approx 0.01.
+\]
+
+But its expected daily move is smaller, about \(0.8\%\), not \(1\%\).
+
+\begin{remark}
+This is one of the most important volatility takeaways in the section:
+\[
+\text{volatility} \neq \text{expected move}.
+\]
+They are related, but they are not the same.
+\end{remark}
+
+This matters later when comparing gamma and theta, because the underlying does not need to move by a full one-standard-deviation amount every day for the realized movement to matter.
+
+\subsection{Historical Volatility Calculation}
+
+When traders calculate historical volatility from daily closing prices, they usually:
+
+\begin{itemize}
+    \item use \textbf{log returns}, not absolute returns,
+    \item and assume the mean return is approximately zero over the sample for this calculation.
+\end{itemize}
+
+So for an \(n\)-day sample, the annualized historical volatility is written as
+
+\[
+\text{vol} = \sqrt{\frac{252}{n}\sum_{j=0}^{n}\left(\log\frac{S_j}{S_{j-1}}\right)^2 }.
+\]
+
+The logic is straightforward:
+\begin{itemize}
+    \item square each daily log return,
+    \item add them up,
+    \item divide by the sample size to get an average variance,
+    \item multiply by \(252\) to annualize,
+    \item and then take the square root.
+\end{itemize}
+
+\begin{remark}
+This is slightly different from the way standard deviation is often introduced in statistics courses, which is why the lecture explicitly points it out.
+\end{remark}
+
+\subsection{Rolling Historical Volatility}
+
+A common practical calculation is \emph{rolling volatility}. For instance, a rolling 5-day annualized historical volatility uses the most recent five days of returns at each point in time.
+
+So if a trader says, “AAPL was realizing \(11.76\) vol on May 23,” they mean that the trailing 5-day realized movement annualized to \(11.76\%\).
+
+\subsection{Time-Variance Additivity}
+
+Another important fact is that \textbf{variance}, not volatility itself, adds through time.
+
+So if we know the annualized vol over one 10-day period and over the next 10-day period, the 20-day vol is \emph{not} the simple average of those two vols.
+
+Instead, the correct way is to combine the variances and then take a square root at the end.
+
+\begin{remark}
+This is why traders often say that \emph{time-variance is additive}. Volatility itself is not linearly additive.
+\end{remark}
+
+\subsection{Why Volatility Comes Before Vega}
+
+This section comes right before vega for a reason. Vega measures how much an option price changes when implied volatility changes. So before discussing vega, we need a clear picture of what volatility itself means.
+
+Volatility is not just an abstract statistic. It is the language traders use to describe how wide the future price distribution is, how much movement the market is pricing, and how expensive optionality should be.
+
+\begin{remark}
+A good practical summary is this: historical vol tells us how much the market \emph{did} move, while implied vol tells us how much the market is \emph{pricing} that it may move.
+\end{remark}
+
+\section{Volatility}
+
+\subsection{Why Volatility Matters}
+
+Before moving to vega, we need to define volatility clearly. Volatility is central to options because an option trader does not only care about \emph{direction}; they also care about the \emph{speed} and \emph{magnitude} of the underlying's movement. In practice, option prices are closely tied to how much the market has moved or is expected to move. 
+
+\begin{definition}[Volatility]
+\textbf{Volatility} is the degree of variation of an underlying's price over time, typically measured as the standard deviation of logarithmic returns and quoted on an annualized basis.
+\end{definition}
+
+A higher volatility means a wider distribution of possible future prices. A lower volatility means a tighter distribution concentrated closer to the current forward price.
+
+\subsection{Normal vs.\ Lognormal Thinking}
+
+Although many people first learn volatility through the normal distribution, option pricing usually works with a \emph{lognormal} framework for the underlying price. This is because prices compound over time, and because stocks and futures cannot go below zero.
+
+\begin{remark}
+A lognormal distribution has a tighter downside and a longer upside tail. This better reflects how asset prices behave in practice.
+\end{remark}
+
+\trimimgfigure{image47.png}{0.28}{Normal versus lognormal distributions. In options pricing, the lognormal shape is preferred because prices compound and cannot fall below zero.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Volatility as a Distribution of Future Prices}
+
+Volatility can be interpreted as a statement about the distribution of future prices. For example, if an underlying is trading at \(100\) and has \(20\%\) annual volatility, then roughly speaking:
+
+\[
+100 \pm 20
+\]
+
+gives the one-year one-standard-deviation range, so the asset is expected to lie between \(80\) and \(120\) about \(68\%\) of the time.
+
+Likewise, two standard deviations would give:
+
+\[
+100 \pm 40,
+\]
+
+so the range \(60\) to \(140\) contains roughly \(95\%\) of outcomes.
+
+\begin{remark}
+These percentages come from the usual one-standard-deviation and two-standard-deviation interpretation. In practice, the exact asset-price model is lognormal, so this is an approximation, but it is still very useful intuition.
+\end{remark}
+
+\trimimgfigure{image50.png}{0.26}{Standard-deviation interpretation of a probability distribution. Volatility is often understood through these one-, two-, and three-standard-deviation ranges.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+Different volatility assumptions produce different price distributions. Lower volatility gives a tighter, taller distribution. Higher volatility gives a wider, flatter one.
+
+\trimimgfigure{image46.png}{0.30}{Different volatility assumptions lead to different future price distributions. Higher volatility spreads probability mass over a wider range of outcomes.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Types of Volatility}
+
+There are several different volatility concepts used by traders.
+
+\begin{definition}[Historical Volatility]
+\textbf{Historical volatility} (or \textbf{realized volatility}) measures how much the underlying has moved over a past period using observed price data.
+\end{definition}
+
+\begin{definition}[Implied Volatility]
+\textbf{Implied volatility} is the market's current forecast of future volatility. It is the volatility input used in an option pricing model to produce current option theoretical values.
+\end{definition}
+
+\begin{definition}[Historical Implied Volatility]
+\textbf{Historical implied volatility} refers to the implied volatility that option markets were pricing during some past period.
+\end{definition}
+
+\begin{definition}[Forward Volatility]
+\textbf{Forward volatility} is the expected average volatility between two future expiration dates.
+\end{definition}
+
+A useful practical distinction is this:
+
+\begin{itemize}
+    \item \textbf{Historical / realized volatility} is backward-looking.
+    \item \textbf{Implied volatility} is forward-looking.
+\end{itemize}
+
+\trimimgfigure{image48.png}{0.24}{Implied volatility is forward-looking, while realized volatility becomes historical once the movement has already occurred.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsection{Annualized Volatility}
+
+Volatility is usually quoted as an annualized number. If \(\sigma_{\text{daily}}\) is the standard deviation of daily log returns, then annualized volatility is approximately:
+
+\[
+\sigma_{\text{annual}} = \sigma_{\text{daily}} \sqrt{252}.
+\]
+
+More generally, if \(\sigma_{\text{annual}}\) is annualized volatility, then the one-standard-deviation move over \(t\) trading days is:
+
+\[
+\sigma_t = \sigma_{\text{annual}} \sqrt{\frac{t}{252}}.
+\]
+
+\trimimgfigure{image49.png}{0.30}{Converting between daily and annualized volatility, and using volatility to estimate the one-standard-deviation move over a horizon of \(t\) trading days.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{example}[From annual volatility to a one-day standard deviation move]
+Suppose volatility is \(20\%\), or \(0.20\) in decimal form. Then the one-day standard deviation move is
+
+\[
+0.20 \sqrt{\frac{1}{252}} \approx 0.0126,
+\]
+
+which is about \(1.26\%\).
+\end{example}
+
+\subsection{Standard Deviation Move vs.\ Expected Move}
+
+A very important distinction is that a one-standard-deviation move is \emph{not} the same thing as the expected daily move.
+
+For example, a \(16\) vol product has approximately a \(1\%\) one-day standard deviation move, since
+
+\[
+0.16 \sqrt{\frac{1}{252}} \approx 0.01.
+\]
+
+But its expected daily move is smaller, about \(0.8\%\), not \(1\%\).
+
+\begin{remark}
+This is one of the most important volatility takeaways in the section:
+\[
+\text{volatility} \neq \text{expected move}.
+\]
+They are related, but they are not the same.
+\end{remark}
+
+This matters later when comparing gamma and theta, because the underlying does not need to move by a full one-standard-deviation amount every day for the realized movement to matter.
+
+\subsection{Historical Volatility Calculation}
+
+When traders calculate historical volatility from daily closing prices, they usually:
+
+\begin{itemize}
+    \item use \textbf{log returns}, not absolute returns,
+    \item and assume the mean return is approximately zero over the sample for this calculation.
+\end{itemize}
+
+So for an \(n\)-day sample, the annualized historical volatility is written as
+
+\[
+\text{vol} = \sqrt{\frac{252}{n}\sum_{j=0}^{n}\left(\log\frac{S_j}{S_{j-1}}\right)^2 }.
+\]
+
+The logic is straightforward:
+\begin{itemize}
+    \item square each daily log return,
+    \item add them up,
+    \item divide by the sample size to get an average variance,
+    \item multiply by \(252\) to annualize,
+    \item and then take the square root.
+\end{itemize}
+
+\begin{remark}
+This is slightly different from the way standard deviation is often introduced in statistics courses, which is why the lecture explicitly points it out.
+\end{remark}
+
+\subsection{Rolling Historical Volatility}
+
+A common practical calculation is \emph{rolling volatility}. For instance, a rolling 5-day annualized historical volatility uses the most recent five days of returns at each point in time.
+
+So if a trader says, “AAPL was realizing \(11.76\) vol on May 23,” they mean that the trailing 5-day realized movement annualized to \(11.76\%\).
+
+\subsection{Time-Variance Additivity}
+
+Another important fact is that \textbf{variance}, not volatility itself, adds through time.
+
+So if we know the annualized vol over one 10-day period and over the next 10-day period, the 20-day vol is \emph{not} the simple average of those two vols.
+
+Instead, the correct way is to combine the variances and then take a square root at the end.
+
+\begin{remark}
+This is why traders often say that \emph{time-variance is additive}. Volatility itself is not linearly additive.
+\end{remark}
+
+\subsection{Why Volatility Comes Before Vega}
+
+This section comes right before vega for a reason. Vega measures how much an option price changes when implied volatility changes. So before discussing vega, we need a clear picture of what volatility itself means.
+
+Volatility is not just an abstract statistic. It is the language traders use to describe how wide the future price distribution is, how much movement the market is pricing, and how expensive optionality should be.
+
+\begin{remark}
+A good practical summary is this: historical vol tells us how much the market \emph{did} move, while implied vol tells us how much the market is \emph{pricing} that it may move.
+\end{remark}
+
+\subsection{Vega}
+
+\begin{definition}[Vega]
+The \textbf{vega} of an option is the change in the option's value for a one-point change in implied volatility.
+\end{definition}
+
+Vega measures sensitivity to implied volatility, just as delta measures sensitivity to the underlying price. Since options traders constantly translate prices into volatility terms, vega is one of the most watched Greeks on an options desk.
+
+\begin{remark}
+Vega is quoted per 1-point move in implied volatility. So if an option has vega \(0.081\), then increasing implied volatility from \(23.52\) to \(24.52\) would increase the option's value by about \(0.081\).
+\end{remark}
+
+\begin{example}[Single-option vega change]
+Suppose a call option has:
+\[
+\text{price} = 1.00,\qquad \text{delta} = 0.30,\qquad \text{vega} = 0.04,\qquad \text{IV} = 15.
+\]
+If implied volatility increases from \(15\) to \(16\), then the option price increases by:
+\[
+0.04 \times 1 = 0.04.
+\]
+So the new option price is approximately
+\[
+1.00 + 0.04 = 1.04.
+\]
+\end{example}
+
+\trimimgfigure{image57.png}{0.28}{Vega can refer either to the vega of a single option or to the vega of an entire options position.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Vega on the Options Board}
+
+On the options board, calls and puts on the same strike share the same vega. This is another reflection of put-call parity intuition: at a fixed strike, the call and put respond the same way to a volatility change.
+
+For example, on the highlighted strike, the call and put both have vega \(0.081\). If implied volatility rises by one point, each option on that line gains \(0.081\) in value.
+
+\trimimgfigure{image56.png}{0.34}{Option board with the vega column highlighted. Calls and puts on the same strike have the same vega.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Long Options are Long Vega}
+
+Every outright option has positive vega. That means:
+
+\begin{itemize}
+    \item buying a call gives positive vega,
+    \item buying a put gives positive vega,
+    \item selling an outright option gives negative vega.
+\end{itemize}
+
+So if implied volatility rises, long-option holders benefit because the options become more valuable. If implied volatility falls, they lose value.
+
+\begin{remark}
+This is why options traders are often called \emph{volatility traders}. Even when they talk about price, they are often really thinking about where implied volatility should trade.
+\end{remark}
+
+\subsubsection*{How Vega Changes Across Time to Expiry}
+
+Vega is not constant across expiries. Longer-dated options have larger vegas because there is more time for volatility to matter.
+
+\trimimgfigure{image51.png}{0.32}{Vega versus time to expiry. For a fixed underlying and volatility, vega generally increases as time to expiry increases.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+This means a one-point change in implied volatility has a larger price impact on a long-dated option than on a short-dated one.
+
+\subsubsection*{How Vega Changes with Volatility}
+
+Vega also varies with the level of implied volatility itself. In the examples from the lesson, lowering the at-the-money volatility decreases vega away from the peak region.
+
+So vega depends on at least three major things:
+\begin{itemize}
+    \item time to expiry,
+    \item distance from at the money,
+    \item and the current volatility level.
+\end{itemize}
+
+\subsubsection*{Vega Across Strike Space}
+
+Vega is largest for options near the at-the-money strike. As we move further ITM or OTM, vega falls.
+
+\trimimgfigure{image55.png}{0.36}{Vegas across strike space. Vega is highest near the at-the-money strike and declines as strikes move away from ATM.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\trimimgfigure{image52.png}{0.32}{Vega versus implied volatility for different strikes. Vega changes with the volatility level itself.}{0.4cm 0.4cm 0.4cm 0.4cm}
+\begin{remark}
+Options closest to ATM are the most sensitive to a change in implied volatility. That is why the vega curve peaks near the current underlying level.
+\end{remark}
+
+The 3D surface view shows the same pattern more globally: the vega ridge sits near ATM strikes and becomes larger for later expiries.
+
+\trimimgfigure{image53.png}{0.34}{Vega surface across strike and time. Vega peaks near ATM strikes and rises with longer time to expiry.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Portfolio Vega}
+
+Like delta, traders also use the word \emph{vega} to describe a whole position, not just a single option.
+
+\begin{definition}[Portfolio Vega]
+The vega of an options portfolio is
+\[
+\text{portfolio vega} = (\text{number of options}) \times (\text{multiplier}) \times (\text{option vega}).
+\]
+\end{definition}
+
+\begin{example}[Position vega]
+Suppose we buy \(1000\) options, each with vega \(0.081\), and the multiplier is \(50\). Then:
+\[
+\text{portfolio vega} = 1000 \times 50 \times 0.081 = 4050.
+\]
+So a one-point increase in implied volatility produces about a
+\[
+\$4050
+\]
+gain, while a one-point decrease produces about a
+\[
+\$4050
+\]
+loss.
+\end{example}
+
+Traders might say, ``I'm long 4050 vegas.'' In context, this refers to the vega of the \emph{position}, not the per-option vega number.
+
+\subsubsection*{Practical Vega Language}
+
+The word \emph{vega} is used in two common ways:
+
+\begin{itemize}
+    \item the vega of a single option, such as ``this line has 0.081 vega,''
+    \item the vega of a position, such as ``I'm long 4050 vegas.''
+\end{itemize}
+
+This can be confusing at first, but traders usually rely on context.
+
+\subsubsection*{Why Vega Matters So Much}
+
+Vega is one of the most important Greeks because implied volatility is one of the main inputs that market makers actively control in their models. If a trader changes the implied volatility input, option theos move immediately. So understanding vega means understanding how volatility views turn into pricing changes.
+
+In practice, vega tells us:
+\begin{itemize}
+    \item how sensitive an option is to a volatility repricing,
+    \item which strikes are most exposed to vol changes,
+    \item which expiries carry more volatility risk,
+    \item and how much a whole portfolio will gain or lose from an IV shift.
+\end{itemize}
+
+\subsection{Rho \& Boxes}
+
+\subsubsection*{Rho}
+
+\begin{definition}[Rho]
+The \textbf{rho} of an option is the sensitivity of that option's value to a change in interest rates. In other words, rho is the change in option price for a 1-point (1\%) change in rates.
+\end{definition}
+
+Rho is usually the least emphasized Greek in basic options discussions, but it still matters. In long-dated options, large books, or environments where rates are moving meaningfully, rho can become important very quickly. Unlike delta, gamma, theta, and vega, rho is tied to the interest-rate assumptions built into the pricing model.
+
+\begin{example}[Single-option rho]
+Suppose an option has:
+\[
+\text{theoretical value} = 0.93,\qquad \rho = 0.02,\qquad r = 3.5\%.
+\]
+If the interest rate rises from \(3.5\%\) to \(4.5\%\), then the option value increases by:
+\[
+0.02 \times 1 = 0.02.
+\]
+So the new theoretical value becomes:
+\[
+0.93 + 0.02 = 0.95.
+\]
+\end{example}
+
+\trimimgfigure{image60.png}{0.24}{Rho for a single option is the change in option price for a 1\% change in interest rates.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\begin{remark}
+Unlike vega, calls and puts on the same strike do \emph{not} necessarily have the same rho. Interest rates affect calls and puts differently.
+\end{remark}
+
+\subsubsection*{Book Rho}
+
+In practice, market makers usually do not focus on rho one option at a time. Instead, they think about rho at the level of the whole book.
+
+\begin{definition}[Book rho]
+The \textbf{rho of a portfolio} is the total P\&L change of that portfolio for a 1\% change in interest rates.
+\end{definition}
+
+So if a desk says it is \emph{long rho}, that means the book makes money when rates rise and loses money when rates fall. If the desk is \emph{short rho}, the opposite is true.
+
+\begin{example}[Portfolio rho]
+Suppose we own \(200\) options, each with rho \(0.07\), and the multiplier is \(100\). Then the book rho is:
+\[
+200 \times 0.07 \times 100 = 1400.
+\]
+So:
+\begin{itemize}
+    \item if rates rise by 1\%, the book gains about \(\$1400\),
+    \item if rates fall by 0.5\%, the book loses about \(\$700\).
+\end{itemize}
+\end{example}
+
+\trimimgfigure{image61.png}{0.24}{Book rho is expressed as total P\&L change for a 1\% move in rates.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+Because large firms trade many products, rho can also be aggregated across desks and managed at the firm level.
+
+\trimimgfigure{image63.png}{0.22}{Rho can be summed across products and managed at the firm level.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Interest Rate Curves}
+
+There is not just one single interest rate plugged into an options model. Instead, traders use an \textbf{interest-rate curve}, which gives different modeled rates for different expiries.
+
+\begin{definition}[Interest-rate curve]
+An \textbf{interest-rate curve} is the term structure of rates used across time in the options model. Different expiries can therefore use different effective rates.
+\end{definition}
+
+This matters because a trader can be long rho in one expiry and short rho in another. In that setting, risk depends not only on whether the whole curve shifts up or down, but also on how its \emph{shape} changes.
+
+\trimimgfigure{image58.png}{0.30}{Example of an interest-rate curve across time. Different expiries can sit on different points of the curve.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+In practice, traders may think about being long rho on one point of the curve and short rho on another. That means the desk is exposed not just to level changes, but to curve-shape changes as well.
+
+\trimimgfigure{image62.png}{0.29}{A trader can be long rho at one expiry and short rho at another, creating curve-shape exposure.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+The benchmark rates underlying these models are tied to real economic rates, such as Fed Funds and related borrowing costs. When rates were near zero, rho often looked unimportant. As rates started moving again, rho became much more relevant to option desks.
+
+\trimimgfigure{image59.png}{0.31}{Historical interest-rate environments can materially change how important rho is in practice.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Borrowing, Lending, and Rho Intuition}
+
+A useful way to build intuition is through borrowing and lending.
+
+\begin{itemize}
+    \item If you are \textbf{borrowing} money, you generally benefit when rates rise after you lock in a lower rate.
+    \item If you are \textbf{lending} money, you generally lose when rates rise, because you are stuck earning the old lower rate while new lending opportunities pay more.
+\end{itemize}
+
+This is why:
+\begin{itemize}
+    \item a \textbf{long rho} position behaves like borrowing money,
+    \item a \textbf{short rho} position behaves like lending money.
+\end{itemize}
+
+\trimimgfigure{image64.png}{0.24}{Long rho behaves like borrowing money; short rho behaves like lending money.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{Boxes}
+
+A \textbf{box} is a four-leg options structure built from two strikes. It is one of the cleanest ways to see the connection between options and interest rates.
+
+\begin{definition}[Box spread]
+A \textbf{box} is a combination of:
+\[
++K_1c - K_1p + K_2p - K_2c
+\]
+across two strikes \(K_1\) and \(K_2\).
+\end{definition}
+
+For example, a \(700/1200\) box is:
+\[
++700c -700p +1200p -1200c.
+\]
+
+At expiration, that structure is always worth:
+\[
+1200 - 700 = 500,
+\]
+regardless of where the future settles.
+
+\begin{remark}
+A box has a fixed payoff at expiry equal to the difference between the strikes. That is why it behaves like a financing instrument.
+\end{remark}
+
+\subsubsection*{Why the Box is Not Worth 500 Today}
+
+If the box will definitely be worth \(500\) at expiry, it should still be worth \emph{less} than \(500\) today because money has time value.
+
+Suppose the model says the fair present value of the box is:
+\[
+499.20.
+\]
+Then the difference
+\[
+500.00 - 499.20 = 0.80
+\]
+is the financing value associated with tying up capital until expiry.
+
+So the box is essentially a discounted fixed future cash flow.
+
+\begin{definition}[Present-value interpretation]
+If a box pays a known amount at expiry, then its current value is the present value of that payoff under the modeled interest rate.
+\end{definition}
+
+\subsubsection*{Who is Borrowing and Who is Lending?}
+
+If one trader \textbf{buys} the box today for \(499.20\) and receives \(500.00\) at expiry, that trader is effectively \textbf{lending} money.
+
+If another trader \textbf{sells} the box today for \(499.20\) and must pay \(500.00\) at expiry, that trader is effectively \textbf{borrowing} money.
+
+So:
+
+\begin{itemize}
+    \item \textbf{buyer of the box} \(=\) lender,
+    \item \textbf{seller of the box} \(=\) borrower.
+\end{itemize}
+
+\trimimgfigure{image65.png}{0.25}{A box spread can be interpreted as lending or borrowing money through options.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\subsubsection*{How Rates Affect Box Prices}
+
+Because the box is a discounted fixed payoff:
+
+\begin{itemize}
+    \item if interest rates go \textbf{up}, the present value of the future \(500\) goes \textbf{down},
+    \item if interest rates go \textbf{down}, the present value of the future \(500\) goes \textbf{up}.
+\end{itemize}
+
+That means:
+\begin{itemize}
+    \item higher rates push the box price lower,
+    \item lower rates push the box price higher.
+\end{itemize}
+
+So the lender who bought the box prefers lower discounting after entry, while the borrower who sold the box prefers higher discounting after entry.
+
+\subsubsection*{Backing Out the Implied Rate}
+
+If the final box value at expiry is known and the current box price is observed, then we can back out the implied financing rate from the present-value relation.
+
+If \(B_0\) is the current box price and \(B_T\) is the expiry payoff, then conceptually:
+\[
+B_0 = \frac{B_T}{(1+rT)}
+\]
+under simple discounting, or more generally with the appropriate compounding convention.
+
+So if:
+\[
+B_T = 500,\qquad B_0 = 499.20,
+\]
+then the implied rate is the rate that discounts \(500\) to \(499.20\) over the life of the box.
+
+\begin{remark}
+This is why traders can quote boxes either in price terms or in implied-rate terms. A box market is really also a funding market.
+\end{remark}
+
+\subsubsection*{Why This Matters}
+
+Boxes are important because they isolate financing logic inside option structures. They show that options are not just about direction and volatility. They also encode interest-rate relationships.
+
+That is why rho, even if often treated as the least important Greek, still matters:
+\begin{itemize}
+    \item for long-dated options,
+    \item for large portfolios,
+    \item for funding-sensitive structures like boxes,
+    \item and for firm-level risk management.
+\end{itemize}
+
+\section*{Closing Thoughts}
+
+\subsection*{Greeks vs.\ Payoff Diagrams}
+
+This course built a practical framework for thinking about how option models work and how market makers use them. A payoff diagram tells us what happens \emph{at expiry}. Greeks tell us how an option behaves \emph{before expiry}, while time, volatility, rates, and the underlying price are all still changing.
+
+A useful way to close the course is to compare those two views directly. Consider a 100-strike call shown across several times to expiry. The expiry payoff is the familiar hockey-stick shape, but before expiry the option price is smoother and higher because there is still optionality left. This is exactly where the Greeks matter.
+
+\trimimgfigure{image66.png}{0.34}{Call values across underlying prices for different times to expiry. The expiry payoff is the sharp red line, while pre-expiry curves remain smoother because they still contain time value.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+From this picture, we can read several ideas at once:
+
+\begin{itemize}
+    \item \textbf{Delta} is the local slope of each curve.
+    \item \textbf{Gamma} is how quickly that slope changes.
+    \item \textbf{Time value} is the gap between the expiry payoff and the earlier-dated curves.
+    \item \textbf{ATM options} tend to have the most interesting behavior because that is where the curve bends the most.
+\end{itemize}
+
+Near expiry, the curve becomes steeper around the strike and flatter away from it. That is another way to see why ATM gamma becomes large as expiration approaches. A tiny move in the underlying can change the hedge ratio much more dramatically when the option is near the strike and near expiry.
+
+Vega and theta are a little harder to read off a single price-versus-underlying plot, but the earlier sections showed how they fit into the same story. Vega measures how sensitive that curve is to changes in implied volatility. Theta measures how the curve decays as time passes. Together, the Greeks explain how the option moves from a smooth pre-expiry surface to the hard payoff shape at expiration.
+
+The same idea can also be viewed as a surface over strike and time-to-expiry rather than a collection of slices.
+
+\trimimgfigure{image67.png}{0.34}{Option price surface across strike and time to expiry. This is another view of the same pricing relationships described by payoff diagrams and Greeks.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+This surface perspective is useful because it emphasizes that an option price is not just one number. It is the output of a model taking several inputs at once. Changing the underlying, time, volatility, or rates moves us to a different point on that surface.
+
+\subsection*{Models and Option Prices}
+
+For a market maker, theoretical values act as the anchor for quoting two-sided markets. They are not just academic outputs. They are the working midpoint around which bids and offers are made, risk is measured, and P\&L is understood.
+
+One of the most important habits in options trading is translating between \textbf{option prices} and \textbf{implied volatilities}. There are two equally valid ways to think about this process.
+
+\trimimgfigure{image68.png}{0.26}{Two equivalent views: translating option prices into implied volatility, or inputting implied volatility into a model to produce an option price.}{0.4cm 0.4cm 0.4cm 0.4cm}
+
+\paragraph{View 1: Price \(\rightarrow\) Implied Volatility.}
+If we observe a traded option price, we can back out the implied volatility that makes the pricing model produce that price. This is useful because volatility often gives a cleaner comparison across options than raw premium does. Option prices alone mix together strike, expiry, underlying level, and the rest of the model inputs. Implied volatility normalizes a lot of that information into a more comparable language.
+
+\paragraph{View 2: Implied Volatility \(\rightarrow\) Price.}
+We can also start from a volatility assumption and feed it into the model along with strike, expiry, underlying price, and rates. The model then outputs an option value. This is the operational view used by market makers when they build quotes and manage risk.
+
+Both views are correct. In practice, options desks constantly switch between them. Sometimes the trader thinks in volatility first and asks what price the model should produce. Other times the trader sees a price in the market and asks what volatility that price implies.
+
+\begin{remark}
+This is one of the deepest themes in options trading: option prices and implied volatilities are two languages describing the same object. Skilled traders become fluent in both.
+\end{remark}
+
+\subsection*{What This Course Was Really About}
+
+At a high level, this course was not just about memorizing definitions like delta, gamma, theta, vega, and rho. It was about learning how option market makers think.
+
+They think in terms of:
+\begin{itemize}
+    \item theoretical values,
+    \item fair markets around those values,
+    \item sensitivities of price to model inputs,
+    \item and how a portfolio behaves as those inputs move.
+\end{itemize}
+
+That is what turns a list of formulas into a trading framework.
+
+The real market is dynamic. Underlyings move. Time passes. Volatility changes. Interest rates shift. A static payoff diagram only tells the final chapter. Greeks describe the whole story leading up to that ending.
+
+
+\end{document}

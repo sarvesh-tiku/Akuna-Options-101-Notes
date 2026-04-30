@@ -10,12 +10,10 @@ This folder contains my textbook-style notes based on introductory options marke
 
 ## Chapter PDFs
 
-The folder `chapters_pdf/` contains PDFs split using the **PDF’s bookmark/outline** structure.
-
-- **Cover page only**: `chapters_pdf/00_cover_page.pdf`
-- **Front matter (everything after cover up to chapter 1)**: `chapters_pdf/00_front_matter_rest.pdf`
-- **Per-chapter PDFs**: `chapters_pdf/01_*.pdf`, `chapters_pdf/02_*.pdf`, …
-- **Index of all outputs + page ranges**: `chapters_pdf/INDEX.txt`
+- **Cover page only**: `00_cover_page.pdf`
+- **Front matter (everything after cover up to chapter 1)**: `00_front_matter_rest.pdf`
+- **Per-chapter PDFs**: `01_*.pdf`, `02_*.pdf`, …
+- **Index of all outputs + page ranges**: `INDEX.txt`
 
 ### Note on “merged” chapters
 
